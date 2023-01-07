@@ -68,6 +68,26 @@ namespace UnitTests
             Assert.AreEqual(NodeType.Element, child2.NodeType);
             Assert.AreEqual("child2", ((XmlElement)tree.Root.Children.ElementAt(1)).Name);
         }
+        [TestMethod]
+        public void XmlTreeContainsRootAndTwoSiblingChildrenWithWhitespace()
+        {
+            using (TextReader reader = new StringReader("<document>   <child1>   </child1>   <child2>   </child2>  </document>"))
+            {
+                var result = parser.Parse(reader);
+            }
+
+            Assert.IsNotNull(tree.Root);
+            Assert.AreEqual("document", tree.Root.Name);
+
+            Assert.AreEqual(2, tree.Root.Children.Count());
+            var child1 = tree.Root.Children.ElementAt(0);
+            Assert.AreEqual(NodeType.Element, child1.NodeType);
+            Assert.AreEqual("child1", ((XmlElement)tree.Root.Children.ElementAt(0)).Name);
+
+            var child2 = tree.Root.Children.ElementAt(1);
+            Assert.AreEqual(NodeType.Element, child2.NodeType);
+            Assert.AreEqual("child2", ((XmlElement)tree.Root.Children.ElementAt(1)).Name);
+        }
 
         [TestMethod]
         public void XmlTreeContainsRootWithChildAndGrandChild()
@@ -106,6 +126,22 @@ namespace UnitTests
             var child = tree.Root.Children.ElementAt(0);
             Assert.AreEqual(NodeType.Text, child.NodeType);
             Assert.AreEqual("text", ((XmlText)child).Text);
+        }
+        [TestMethod]
+        public void XmlTreeContainsSingleTextNodeWithWhitespace()
+        {
+            using (TextReader reader = new StringReader("<document>\n text </document>"))
+            {
+                var result = parser.Parse(reader);
+            }
+
+            Assert.IsNotNull(tree.Root);
+            Assert.AreEqual("document", tree.Root.Name);
+
+            Assert.AreEqual(1, tree.Root.Children.Count());
+            var child = tree.Root.Children.ElementAt(0);
+            Assert.AreEqual(NodeType.Text, child.NodeType);
+            Assert.AreEqual("\n text ", ((XmlText)child).Text);
         }
 
         [TestMethod]
@@ -200,14 +236,29 @@ namespace UnitTests
         [TestMethod]
         public void TreeHasCDATA()
         {
-            using (TextReader reader = new StringReader("<script>\r\n   <![CDATA[\r\n      <message> Welcome to TutorialsPoint </message>\r\n   ]] >\r\n</script >"))
+            using (TextReader reader = new StringReader("<script>\n   <![CDATA[\n      <message> Welcome to TutorialsPoint </message>\n   ]]>\n</script >"))
             {
                 var result = parser.Parse(reader);
 
             }
             var child1 = tree.Root.Children.ElementAt(0);
-            Assert.AreEqual(((XmlCDATA)child1).CDATA, "<message> Welcome to TutorialsPoint </message>");
+            Assert.AreEqual(((XmlCDATA)child1).CDATA, "\n      <message> Welcome to TutorialsPoint </message>\n   ");
 
         }
+        [TestMethod]
+        public void TreeHasMultipleCDATA()
+        {
+            using (TextReader reader = new StringReader("<script>\n   <![CDATA[\n      <message> Welcome to TutorialsPoint </message>\n   ]]> <![CDATA[\n      <message> Hello </message>\n   ]]>\n</script >"))
+            {
+                var result = parser.Parse(reader);
+
+            }
+            var child1 = tree.Root.Children.ElementAt(0);
+            var child2 = tree.Root.Children.ElementAt(1);
+            Assert.AreEqual(((XmlCDATA)child1).CDATA, "\n      <message> Welcome to TutorialsPoint </message>\n   ");
+            Assert.AreEqual(((XmlCDATA)child2).CDATA, "\n      <message> Hello </message>\n   ");
+
+        }
+
     }
 }

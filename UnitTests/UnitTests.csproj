@@ -56,7 +56,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\XmlSaxParser.csproj">
+    <ProjectReference Include="..\XmlSaxParser\XmlSaxParser.csproj">
       <Project>{065d7723-e446-4ec8-9ae2-527209d047c9}</Project>
       <Name>XmlSaxParser</Name>
     </ProjectReference>

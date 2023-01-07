@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32901.215
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XmlSaxParser", "XmlSaxParser.csproj", "{065D7723-E446-4EC8-9AE2-527209D047C9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XmlSaxParser", "XmlSaxParser\XmlSaxParser.csproj", "{065D7723-E446-4EC8-9AE2-527209D047C9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{44209CBB-14B3-4FDE-80A3-1617A997A398}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GUI", "GUI\GUI.csproj", "{F512C143-6E89-4206-8CB8-2AFCFCD4F427}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{44209CBB-14B3-4FDE-80A3-1617A997A398}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44209CBB-14B3-4FDE-80A3-1617A997A398}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44209CBB-14B3-4FDE-80A3-1617A997A398}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F512C143-6E89-4206-8CB8-2AFCFCD4F427}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F512C143-6E89-4206-8CB8-2AFCFCD4F427}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F512C143-6E89-4206-8CB8-2AFCFCD4F427}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F512C143-6E89-4206-8CB8-2AFCFCD4F427}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
