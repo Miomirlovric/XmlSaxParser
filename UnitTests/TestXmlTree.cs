@@ -45,7 +45,7 @@ namespace UnitTests
             }
 
             Assert.IsNotNull(tree.Root);
-            Assert.AreEqual("document", tree.Root.Name);
+            Assert.AreEqual("document", ((XmlElement)tree.Root).Name);
         }
 
         [TestMethod]
@@ -57,7 +57,7 @@ namespace UnitTests
             }
 
             Assert.IsNotNull(tree.Root);
-            Assert.AreEqual("document", tree.Root.Name);
+            Assert.AreEqual("document", ((XmlElement)tree.Root).Name);
 
             Assert.AreEqual(2, tree.Root.Children.Count());
             var child1 = tree.Root.Children.ElementAt(0);
@@ -77,7 +77,7 @@ namespace UnitTests
             }
 
             Assert.IsNotNull(tree.Root);
-            Assert.AreEqual("document", tree.Root.Name);
+            Assert.AreEqual("document", ((XmlElement)tree.Root).Name);
 
             Assert.AreEqual(2, tree.Root.Children.Count());
             var child1 = tree.Root.Children.ElementAt(0);
@@ -98,7 +98,7 @@ namespace UnitTests
             }
 
             Assert.IsNotNull(tree.Root);
-            Assert.AreEqual("document", tree.Root.Name);
+            Assert.AreEqual("document", ((XmlElement)tree.Root).Name);
 
             Assert.AreEqual(1, tree.Root.Children.Count());
             var child = tree.Root.Children.ElementAt(0);
@@ -120,7 +120,7 @@ namespace UnitTests
             }
 
             Assert.IsNotNull(tree.Root);
-            Assert.AreEqual("document", tree.Root.Name);
+            Assert.AreEqual("document", ((XmlElement)tree.Root).Name);
 
             Assert.AreEqual(1, tree.Root.Children.Count());
             var child = tree.Root.Children.ElementAt(0);
@@ -136,7 +136,7 @@ namespace UnitTests
             }
 
             Assert.IsNotNull(tree.Root);
-            Assert.AreEqual("document", tree.Root.Name);
+            Assert.AreEqual("document", ((XmlElement)tree.Root).Name);
 
             Assert.AreEqual(1, tree.Root.Children.Count());
             var child = tree.Root.Children.ElementAt(0);
@@ -153,7 +153,7 @@ namespace UnitTests
             }
 
             Assert.IsNotNull(tree.Root);
-            Assert.AreEqual("document", tree.Root.Name);
+            Assert.AreEqual("document", ((XmlElement)tree.Root).Name);
 
             Assert.AreEqual(3, tree.Root.Children.Count());
 

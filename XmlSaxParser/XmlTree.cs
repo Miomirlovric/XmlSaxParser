@@ -5,9 +5,9 @@ namespace XmlSaxParser
 {
     public class XmlTree
     {
-        public XmlElement Root => root;
+        public XmlNode Root => root;
 
-        private XmlElement root = null;
+        private XmlNode root = null;
 
         // Stack holds current hierarchy of elements. Last element corresponds to the active element and this stack is used to identify parent for a new element.
         private Stack<XmlElement> elementStack = new Stack<XmlElement>();
