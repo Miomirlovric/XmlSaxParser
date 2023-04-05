@@ -38,6 +38,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -46,9 +47,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Position.cs" />
+    <Compile Include="PositionEventArgs.cs" />
     <Compile Include="SaxParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="XmlAtributeEventArgs.cs" />
+    <Compile Include="XmlAttribute.cs" />
     <Compile Include="XmlCDATA.cs" />
     <Compile Include="XmlCDATAEventArgs.cs" />
     <Compile Include="XmlComment.cs" />

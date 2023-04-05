@@ -14,7 +14,7 @@ namespace XmlSaxParser
 
         public void ElementStartHandler(object sender, XmlElementStartEventArgs args)
         {
-            var newElement = new XmlElement(args.Name);
+            var newElement = new XmlElement(args.Name) { Position = args.Position};
             // If element stack is empty, this element is the root.
             if (elementStack.Count == 0)
             {
@@ -49,7 +49,7 @@ namespace XmlSaxParser
                 throw new Exception("XmlText node must have parent XmlElement node");
             }
             // Add XmlText node to parent XmlElement.
-            elementStack.Peek().AddChild(new XmlText(args.Text));
+            elementStack.Peek().AddChild(new XmlText(args.Text) { Position = args.Position});
         }
 
         public void AtributeHandler(object sender, XmlAtributeEventArgs args)
@@ -59,7 +59,7 @@ namespace XmlSaxParser
                 throw new Exception("XmlAtribute must be inside opening tag");
             }
             // Add atribute name and value to the XmlElement.
-            elementStack.Peek().AddAttribute(args.Name, args.Value);
+            elementStack.Peek().AddAttribute(args.Name, args.Value,args.Position);
         }
         public void CommentHandler(object sender, XmlCommentEventArgs args)
         {
@@ -67,7 +67,7 @@ namespace XmlSaxParser
             {
                 throw new Exception("Comment needs to be after first tag");
             }
-            else { elementStack.Peek().AddChild(new XmlComment(args.Comment)); }
+            else { elementStack.Peek().AddChild(new XmlComment(args.Comment) { Position=args.Position}); }
             // Add atribute name and value to the XmlElement.
         }
         public void CDATAHandler(object sender, XmlCDATAEventArgs args)
@@ -76,7 +76,7 @@ namespace XmlSaxParser
             {
                 throw new Exception("CDATA needs to be after first tag");
             }
-            elementStack.Peek().AddChild(new XmlCDATA(args.CDATA)); 
+            elementStack.Peek().AddChild(new XmlCDATA(args.CDATA) {Position = args.Position });
             // Add atribute name and value to the XmlElement.
         }
     }

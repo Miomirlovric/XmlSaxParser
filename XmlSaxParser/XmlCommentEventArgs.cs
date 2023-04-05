@@ -8,11 +8,13 @@ namespace XmlSaxParser
 {
     public class XmlCommentEventArgs : EventArgs
     {
-        public XmlCommentEventArgs(string comment)
+        public XmlCommentEventArgs(string comment, Position position)
         {
             Comment = comment;
+            Position = position;
         }
 
         public readonly string Comment;
+        public readonly Position Position;
     }
 }

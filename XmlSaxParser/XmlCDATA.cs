@@ -17,6 +17,6 @@ namespace XmlSaxParser
         {
             throw new Exception("CDATA cannot be nested");
         }
-        public string CDATA { get; private set; }
+        public string CDATA { get; set; }
     }
 }

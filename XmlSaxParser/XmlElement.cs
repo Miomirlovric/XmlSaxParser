@@ -10,17 +10,10 @@ namespace XmlSaxParser
             Name = name;
         }
 
-        public void AddAttribute(string name, string value)
+        public void AddAttribute(string name, string value,Position position)
         {
-            Attributes.Add(name, value);
+            AttributesList.Add(new XmlAttribute(name, value, position));
         }
-        public string GetAtribute(string key)
-        {
-            return Attributes[key];
-
-        }
-
-
 
         public override void AddChild(XmlNode child)
         {
@@ -29,6 +22,6 @@ namespace XmlSaxParser
 
         public string Name { get; private set; }
 
-        public readonly Dictionary<string, string> Attributes = new Dictionary<string, string>();
+        public readonly List<XmlAttribute> AttributesList = new List<XmlAttribute>();
     }
 }

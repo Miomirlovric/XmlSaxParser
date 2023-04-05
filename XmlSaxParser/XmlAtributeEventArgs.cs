@@ -6,16 +6,18 @@ using System.Threading.Tasks;
 
 namespace XmlSaxParser
 {
-    public class XmlAtributeEventArgs
+    public class XmlAtributeEventArgs : EventArgs
     {
-        public XmlAtributeEventArgs(string name, string value)
+        public XmlAtributeEventArgs(string name, string value, Position position)
         {
             Name = name;
             Value = value;
+            Position = position;
         }
 
-        public string Name;
-        public string Value;
+        public readonly string Name;
+        public readonly string Value;
+        public readonly Position Position;
 
     }
 }

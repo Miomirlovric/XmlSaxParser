@@ -8,11 +8,13 @@ namespace XmlSaxParser
 {
     public class XmlCDATAEventArgs : EventArgs
     {
-        public XmlCDATAEventArgs(string cDATA)
+        public XmlCDATAEventArgs(string cDATA, Position position)
         {
             CDATA = cDATA;
+            Position = position;
         }
 
         public readonly string CDATA;
+        public readonly Position Position;
     }
 }

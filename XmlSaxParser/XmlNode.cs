@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 
+
 namespace XmlSaxParser
 {
     public enum NodeType
@@ -7,12 +8,15 @@ namespace XmlSaxParser
         Element,
         Text,
         Comment,
-        CDATA
+        CDATA,
+        Atribute
     }
 
     public abstract class XmlNode
     {
         public readonly NodeType NodeType;
+
+        public Position Position;
 
         public XmlNode(NodeType nodeType)
         {

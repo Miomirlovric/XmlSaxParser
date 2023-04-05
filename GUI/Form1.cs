@@ -4,24 +4,26 @@ using XmlSaxParser;
 using static GUI.Form1;
 using System.Timers;
 using Timer = System.Timers.Timer;
+using System.Diagnostics.Metrics;
+using System.Xml.Linq;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace GUI
 {
     public partial class Form1 : Form
     {
         public delegate void Del();
-        Del del;
         public string document { get; set; } = "";
         public SaxParser parser { get; set; }
         public XmlTree tree { get; set; }
         public FillTreeControl fillTreeControl { get; set; }
-        //public bool Wait { get; set; }
+        public bool FileIsChanged { get; set; } = false;
         public string documentPath { get; set; } = "";
         public Timer aTimer { get; set; }
+
         public Form1()
         {
             InitializeComponent();
-            del = DelegateMethod;
             aTimer = new System.Timers.Timer();
             aTimer.Interval = 6000;
             aTimer.Elapsed += OnTimedEvent;
@@ -30,28 +32,30 @@ namespace GUI
             parser = new SaxParser();
             tree = new XmlTree();
             fillTreeControl = new FillTreeControl(treeView1, tree);
+            treeView1.ImageList = imageList1;
             parser.XmlElementStart += tree.ElementStartHandler;
             parser.XmlElementEnd += tree.ElementEndHandler;
             parser.XmlText += tree.TextHandler;
             parser.XmlAtribute += tree.AtributeHandler;
             parser.XmlComment += tree.CommentHandler;
-            parser.XmlCDATA += tree.CDATAHandler;
-            //using (TextReader reader = new StringReader(document)) //"<document><child1><child1></child1><child2></child2></child1><child2></child2></document>"
-            //{
-            //    var result = parser.Parse(reader);               
-            //}
-            //fillTreeControl.FillTree(treeView1, tree);        
+            parser.XmlCDATA += tree.CDATAHandler;  
         }
 
         public class FillTreeControl
         {
             public TreeView view { get; set; }
             public XmlTree tree { get; set; }
+            public Dictionary<string, Color> Colors;
 
             public FillTreeControl(TreeView view, XmlTree tree)
             {
                 this.view = view;
                 this.tree = tree;
+                Colors = new Dictionary<string, Color>()
+            {
+                { "Element", Color.Green },{ "Comment", Color.LightGreen },{ "Text", Color.GreenYellow },
+                { "CDATA", Color.LightBlue }, { "Atribute", Color.Blue }
+            };
             }
 
             public void FillTree(TreeView view, XmlTree tree)
@@ -59,11 +63,19 @@ namespace GUI
                 view.BeginUpdate();
                 view.Nodes.Clear();
                 view.Nodes.Add(((XmlElement)tree.Root).Name);
+                foreach(var atribute in ((XmlElement)tree.Root).AttributesList)
+                {
+                    var x =view.Nodes[0].Nodes.Add(atribute.Key + "=\"" + atribute.Value + "\"");
+                    x.Tag = atribute.Position;
+                }
+                view.Nodes[0].ImageIndex = 0;
+                view.Nodes[0].ForeColor = Colors["Element"];
+                view.Nodes[0].Tag = tree.Root.Position;
                 IterateThroughTree((List<XmlNode>)tree.Root.Children, view.Nodes[0]);
                 view.EndUpdate();
             }
 
-            public void RefreshTree()
+            public void ClearTree()
             {
                 view.BeginUpdate();
                 view.Nodes.Clear();
@@ -78,6 +90,22 @@ namespace GUI
                     foreach (var node in nodes)
                     {
                         prevNode.Nodes.Add(GetValueOfNode(node));
+                        prevNode.Nodes[counter].Tag = node.Position;
+                        if (node.NodeType == NodeType.Element)
+                        {
+                            if (((XmlElement)node).AttributesList.Count > 0)
+                            {   int atCounter = 0;
+                                foreach (var atribute in ((XmlElement)node).AttributesList)
+                                {
+                                    prevNode.Nodes[counter].Nodes.Add(atribute.Key+ "=\"" + atribute.Value+"\"");
+                                    //prevNode.Nodes[counter].Nodes[atCounter].ForeColor = Colors["Atribute"];
+                                    prevNode.Nodes[counter].Nodes[atCounter].Tag = atribute.Position;
+                                    ColorNodes(atribute, prevNode.Nodes[counter].Nodes[atCounter]);
+                                    atCounter++;
+                                }
+                            }
+                        }
+                        ColorNodes(node, prevNode.Nodes[counter]);
                         IterateThroughTree((List<XmlNode>)node.Children, prevNode.Nodes[counter]);
                         counter++;
                     }
@@ -89,19 +117,7 @@ namespace GUI
                 switch (x.NodeType)
                 {
                     case NodeType.Element:
-                        if (((XmlElement)x).Attributes.Count > 0)
-                        {
-                            string atribute = "";
-                            foreach (var i in ((XmlElement)x).Attributes)
-                            {
-                                atribute += i.Key + i.Value;
-                            }
-                            return ((XmlElement)x).Name + atribute;
-                        }
-                        else
-                        {
-                            return ((XmlElement)x).Name;
-                        }
+                        return ((XmlElement)x).Name;
                     case NodeType.Comment:
                         return ((XmlComment)x).Comment;
                     case NodeType.Text:
@@ -112,15 +128,37 @@ namespace GUI
                         throw new Exception("unknown node type");
                 }
             }
+            public void ColorNodes(XmlNode x, TreeNode prevNode)
+            {
+                switch (x.NodeType)
+                {
+                    case NodeType.Element:
+                        prevNode.ForeColor = Colors["Element"];
+                        prevNode.ImageIndex = 1;
+                        break;
+                    case NodeType.Comment:
+                        prevNode.ForeColor = Colors["Comment"];
+                        prevNode.ImageIndex = 2;
+                        break;
+                    case NodeType.Text:
+                        prevNode.ForeColor = Colors["Text"];
+                        prevNode.ImageIndex = 2;
+                        break;
+                    case NodeType.CDATA:
+                        prevNode.ForeColor = Colors["CDATA"];
+                        prevNode.ImageIndex = 3;
+                        break;
+                    case NodeType.Atribute:
+                        prevNode.ForeColor = Colors["Atribute"];
+                        prevNode.ImageIndex = 4;
+                        break;
+                    default:
+                        throw new Exception("unknown node type");
+                }
+            }
         }
         private void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
         {
-            //using (TextReader reader = new StringReader(document))
-            //{
-            //    var result = parser.Parse(reader);
-
-            //}
-            //fillTreeControl.FillTree(treeView1, tree);
             DelegateMethod();
         }
         public void DelegateMethod()
@@ -134,12 +172,16 @@ namespace GUI
             {
                 try 
                 {
+                    if(document != null) { 
                     using (TextReader reader = new StringReader(document))
                     {
                         var result = parser.Parse(reader);
 
                     }
-                    fillTreeControl.FillTree(treeView1, tree);
+                    fillTreeControl.ClearTree();
+                    fillTreeControl.FillTree(treeView1, tree);                 
+                    treeView1.ExpandAll();
+                    }
                 }
                 catch(Exception ex)
                 {
@@ -149,53 +191,43 @@ namespace GUI
         }
         private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
+            FileIsChanged = true;
             document = richTextBox1.Text.ToString();
             aTimer.Enabled=false;
             aTimer.Enabled = true;
-            //if (Wait)
-            //{
-            //    Wait = false;
-            //    await Task.Delay(10000);
-            //    document = richTextBox1.Text;
-            //    using (TextReader reader = new StringReader(document)) //"<document><child1><child1></child1><child2></child2></child1><child2></child2></document>"
-            //    {
-            //        var result = parser.Parse(reader);
-
-            //    }
-            //    fillTreeControl.FillTree(treeView1, tree);
-            //    Wait = true;
-            //}
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var fileContent = string.Empty;            
 
-            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            using (openFileDialog1)
             {
-                openFileDialog.InitialDirectory = "c:\\";
-                openFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
-                openFileDialog.FilterIndex = 2;
-                openFileDialog.RestoreDirectory = true;
+                openFileDialog1.InitialDirectory = "c:\\";
+                openFileDialog1.Filter = "xml files (*.xml)|*.xml|All files (*.*)|*.*";
+                openFileDialog1.FilterIndex = 2;
+                openFileDialog1.RestoreDirectory = true;
 
-                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                if (openFileDialog1.ShowDialog() == DialogResult.OK)
                 {
+                    FileIsChanged=false;
                     //Get the path of specified file
-                    documentPath = openFileDialog.FileName;
+                    documentPath = openFileDialog1.FileName;
 
                     //Read the contents of the file into a stream
-                    var fileStream = openFileDialog.OpenFile();
+                    var fileStream = openFileDialog1.OpenFile();
                     
                     using (StreamReader reader = new StreamReader(fileStream))
                     {
                         fileContent = reader.ReadToEnd();
                     }
+                    document = fileContent;
+                    richTextBox1.Text = document;
+                    DelegateMethod();
+                    aTimer.Enabled = false;
+                    FileIsChanged=false;                
                 }
             }
-
-            document = fileContent;
-            richTextBox1.Text = document;
-            DelegateMethod();
         }
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
@@ -204,6 +236,7 @@ namespace GUI
             {
                 File.WriteAllText(documentPath, document);
                 MessageBox.Show("File saved", "Notification", MessageBoxButtons.OK,MessageBoxIcon.Information);
+                FileIsChanged = false;
             }
             else
             {
@@ -216,15 +249,14 @@ namespace GUI
             richTextBox1.Text = String.Empty;
             document = String.Empty;
             documentPath = String.Empty;
-            fillTreeControl.RefreshTree();
-            MessageBox.Show("New File created", "Notification", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            fillTreeControl.ClearTree();
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+            //SaveFileDialog saveFileDialog1 = new SaveFileDialog();
 
-            saveFileDialog1.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+            saveFileDialog1.Filter = "xml files (*.xml)|*.xml|All files (*.*)|*.*";
             saveFileDialog1.FilterIndex = 2;
             saveFileDialog1.RestoreDirectory = true;
 
@@ -241,6 +273,56 @@ namespace GUI
 
                 documentPath = saveFileDialog1.FileName;
                 MessageBox.Show("File saved", "Notification", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                FileIsChanged = false;
+            }
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (FileIsChanged) 
+            {
+                var res = MessageBox.Show(this, "You didnt save some changes. Are u sure u wish to exit?", "Exit",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
+                if (res != DialogResult.Yes)
+                {
+                    e.Cancel = true;
+                    saveToolStripMenuItem_Click(this, new EventArgs());
+                    return;
+                }
+            }
+        }
+
+        private void treeView1_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            var x = e.Node.Tag;
+            var length = e.Node.Text.Count();
+            var ln = ((Position)x).LineNumber-1;
+            var lp = ((Position)x).LinePosition-1;
+            var i = richTextBox1.GetFirstCharIndexFromLine(ln);
+            i = i + lp;
+            richTextBox1.DeselectAll();
+            richTextBox1.Select(i, length);
+        }
+
+        private void nodeColorsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //ColorDialog MyDialog = new ColorDialog();
+            //if (MyDialog.ShowDialog() == DialogResult.OK) { }
+            ColorPicker a = new ColorPicker(fillTreeControl.Colors);
+            a.ShowDialog();
+            using (ColorPicker dlg = new ColorPicker(fillTreeControl.Colors))
+            {
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    var result = dlg.colors;
+                    fillTreeControl.Colors = result;
+                    DelegateMethod();
+                }
             }
         }
     }

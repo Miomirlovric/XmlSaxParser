@@ -37,17 +37,19 @@ namespace XmlSaxParser
         {
             using (XmlReader reader = XmlReader.Create(textReader, settings))
             {
+                IXmlLineInfo xli = (IXmlLineInfo)reader;               
                 while (await reader.ReadAsync())
                 {
+                    var Position = new Position { LineNumber = xli.LineNumber, LinePosition = xli.LinePosition };
                     switch (reader.NodeType)
                     {
                         case XmlNodeType.Element:
-                            OnElementStart(reader.Name);
+                            OnElementStart(reader.Name, Position);
                             if (reader.HasAttributes)
                             {
                                 while (reader.MoveToNextAttribute())
                                 {
-                                    OnAtribute(reader.Name, reader.Value);
+                                    OnAtribute(reader.Name, reader.Value, new Position() { LineNumber=xli.LineNumber,LinePosition=xli.LinePosition});
                                 }
                                 // Move the reader back to the element node.
                                 reader.MoveToElement();
@@ -57,48 +59,52 @@ namespace XmlSaxParser
                             OnElementEnd(reader.Name);
                             break;
                         case XmlNodeType.Text:
-                            OnText(await reader.GetValueAsync());
+                            OnText(await reader.GetValueAsync(), Position);
                             break;
                         case XmlNodeType.Comment:
-                            OnComment(await reader.GetValueAsync());
+                            OnComment(await reader.GetValueAsync(), Position);
 
                             break;
                         case XmlNodeType.CDATA:
-                            OnCDATA(reader.Value);
+                            OnCDATA(reader.Value, Position);
 
                             break;
+                        //case XmlNodeType.Attribute:
+                        //    //OnCDATA(reader.Value);
+                        //    OnAtribute(reader.Name, reader.Value, Position);
+                        //    break;
 
                         default:
-
+                            
                             break;
                     }
                 }
             }
         }
 
-        protected virtual void OnElementStart(string name)
+        protected virtual void OnElementStart(string name, Position position)
         {
-            XmlElementStart?.Invoke(this, new XmlElementStartEventArgs(name));
+            XmlElementStart?.Invoke(this, new XmlElementStartEventArgs(name, position));
         }
         protected virtual void OnElementEnd(string name)
         {
             XmlElementEnd?.Invoke(this, new XmlElementEndEventArgs(name));
         }
-        protected virtual void OnText(string text)
+        protected virtual void OnText(string text,Position position)
         {
-            XmlText?.Invoke(this, new XmlTextEventArgs(text));
+            XmlText?.Invoke(this, new XmlTextEventArgs(text, position));
         }
-        protected virtual void OnAtribute(string atrText, string atrValue)
+        protected virtual void OnAtribute(string atrText, string atrValue, Position position)
         {
-            XmlAtribute?.Invoke(this, new XmlAtributeEventArgs(atrText, atrValue));
+            XmlAtribute?.Invoke(this, new XmlAtributeEventArgs(atrText, atrValue,position));
         }
-        protected virtual void OnComment(string comment)
+        protected virtual void OnComment(string comment, Position position)
         {
-            XmlComment?.Invoke(this, new XmlCommentEventArgs(comment));
+            XmlComment?.Invoke(this, new XmlCommentEventArgs(comment,position));
         }
-        protected virtual void OnCDATA(string comment)
+        protected virtual void OnCDATA(string comment, Position position)
         {
-            XmlCDATA?.Invoke(this, new XmlCDATAEventArgs(comment));
+            XmlCDATA?.Invoke(this, new XmlCDATAEventArgs(comment,position));
         }
     }
 }
