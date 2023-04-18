@@ -90,7 +90,7 @@
             this.Controls.Add(this.ColorPanel);
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.ApplyButton);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.Name = "ColorPicker";
             this.ResumeLayout(false);
 

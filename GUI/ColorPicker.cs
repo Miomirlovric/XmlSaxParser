@@ -45,8 +45,10 @@ namespace GUI
             ColorDialog MyDialog = new ColorDialog();
             if (MyDialog.ShowDialog() == DialogResult.OK) 
             {
+                var i = comboBox1.SelectedIndex;
                 colors[comboBox1.Text] = MyDialog.Color;
                 comboBox1.DataSource = colors.ToList();
+                comboBox1.SelectedIndex = i;
                 colorComboBox_SelectedIndexChanged(sender, e);
             }
         }

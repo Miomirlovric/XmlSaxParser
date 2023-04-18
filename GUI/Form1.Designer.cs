@@ -47,6 +47,8 @@
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
+            this.editorTextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.nodeTextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.SuspendLayout();
@@ -134,7 +136,9 @@
             // settingsToolStripMenuItem
             // 
             this.settingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.nodeColorsToolStripMenuItem});
+            this.nodeColorsToolStripMenuItem,
+            this.editorTextToolStripMenuItem,
+            this.nodeTextToolStripMenuItem});
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.settingsToolStripMenuItem.Text = "Settings";
@@ -142,7 +146,7 @@
             // nodeColorsToolStripMenuItem
             // 
             this.nodeColorsToolStripMenuItem.Name = "nodeColorsToolStripMenuItem";
-            this.nodeColorsToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.nodeColorsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.nodeColorsToolStripMenuItem.Text = "Node colors";
             this.nodeColorsToolStripMenuItem.Click += new System.EventHandler(this.nodeColorsToolStripMenuItem_Click);
             // 
@@ -174,6 +178,20 @@
             this.imageList1.Images.SetKeyName(3, "icons8-comments-24.png");
             this.imageList1.Images.SetKeyName(4, "icons8-filled-circle-48.png");
             // 
+            // editorTextToolStripMenuItem
+            // 
+            this.editorTextToolStripMenuItem.Name = "editorTextToolStripMenuItem";
+            this.editorTextToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.editorTextToolStripMenuItem.Text = "Editor text";
+            this.editorTextToolStripMenuItem.Click += new System.EventHandler(this.editorTextToolStripMenuItem_Click);
+            // 
+            // nodeTextToolStripMenuItem
+            // 
+            this.nodeTextToolStripMenuItem.Name = "nodeTextToolStripMenuItem";
+            this.nodeTextToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.nodeTextToolStripMenuItem.Text = "Node text";
+            this.nodeTextToolStripMenuItem.Click += new System.EventHandler(this.nodeTextToolStripMenuItem_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -185,7 +203,7 @@
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "XML Tree Editor";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -214,5 +232,7 @@
         private ToolStripMenuItem exitToolStripMenuItem;
         private ToolStripMenuItem settingsToolStripMenuItem;
         private ToolStripMenuItem nodeColorsToolStripMenuItem;
+        private ToolStripMenuItem editorTextToolStripMenuItem;
+        private ToolStripMenuItem nodeTextToolStripMenuItem;
     }
 }

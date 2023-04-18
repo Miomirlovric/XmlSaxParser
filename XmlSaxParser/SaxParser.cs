@@ -54,6 +54,10 @@ namespace XmlSaxParser
                                 // Move the reader back to the element node.
                                 reader.MoveToElement();
                             }
+                            if (reader.IsEmptyElement)
+                            {
+                                OnElementEnd(reader.Name);
+                            }
                             break;
                         case XmlNodeType.EndElement:
                             OnElementEnd(reader.Name);
@@ -69,10 +73,6 @@ namespace XmlSaxParser
                             OnCDATA(reader.Value, Position);
 
                             break;
-                        //case XmlNodeType.Attribute:
-                        //    //OnCDATA(reader.Value);
-                        //    OnAtribute(reader.Name, reader.Value, Position);
-                        //    break;
 
                         default:
                             
