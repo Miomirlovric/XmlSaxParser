@@ -19,6 +19,7 @@ namespace GUI
         public bool FileIsChanged { get; set; } = false;
         public string documentPath { get; set; } = "";
         public Timer aTimer { get; set; }
+        public FillTreeHandler treehandler { get; set;}
 
         public Form1()
         {
@@ -29,14 +30,65 @@ namespace GUI
             //Wait = true;
             parser = new SaxParser();
             tree = new XmlTree();
+            treehandler = new FillTreeHandler() { view = treeView1,stack = new Stack<TreeNode>()};  
             fillTreeControl = new FillTreeControl(treeView1, tree);
             treeView1.ImageList = imageList1;
-            parser.XmlElementStart += tree.ElementStartHandler;
-            parser.XmlElementEnd += tree.ElementEndHandler;
-            parser.XmlText += tree.TextHandler;
-            parser.XmlAtribute += tree.AtributeHandler;
-            parser.XmlComment += tree.CommentHandler;
-            parser.XmlCDATA += tree.CDATAHandler;
+            //parser.XmlElementStart += tree.ElementStartHandler;
+            //parser.XmlElementEnd += tree.ElementEndHandler;
+            //parser.XmlText += tree.TextHandler;
+            //parser.XmlAtribute += tree.AtributeHandler;
+            //parser.XmlComment += tree.CommentHandler;
+            //parser.XmlCDATA += tree.CDATAHandler;
+            parser.XmlElementStart += treehandler.ElementStartHandler;
+            parser.XmlElementEnd += treehandler.ElementEndHandler;
+            parser.XmlText += treehandler.TextHandler;
+        }
+
+        public class FillTreeHandler
+        {
+            public TreeView view { get; set; }
+            public Stack<TreeNode> stack { get; set; }
+
+            public void ElementStartHandler(object sender, XmlElementStartEventArgs args)
+            {
+                var newElement = new XmlElement(args.Name) { Position = args.Position };
+                // If element stack is empty, this element is the root.
+                if (stack.Count == 0)
+                {
+                    var node = view.Nodes.Add(args.Name);
+                    node.ForeColor = Color.Aqua;
+                    stack.Push(node);
+                }
+                // If new element is not the root element then add it as a child of current active element, which is the top element on the stack.
+                else
+                {
+                    var node = stack.Peek().Nodes.Add(args.Name);
+                    node.ForeColor = Color.Aqua;
+                    stack.Push(node);
+                }
+            }
+
+            public void ElementEndHandler(object sender, XmlElementEndEventArgs args)
+            {
+                if (stack.Count == 0)
+                {
+                    throw new Exception("Invalid XML document");
+                }
+                var elementRemoved = stack.Pop();
+                if (elementRemoved.Name != args.Name)
+                {
+                    throw new Exception("Closing tag name is different from opening tag name");
+                }
+            }
+            public void TextHandler(object sender, XmlTextEventArgs args)
+            {
+                if (stack.Count == 0)
+                {
+                    throw new Exception("XmlText node must have parent XmlElement node");
+                }
+                // Add XmlText node to parent XmlElement.
+                stack.Peek().Nodes.Add(args.Text);
+            }
         }
 
         public class FillTreeControl
@@ -158,6 +210,7 @@ namespace GUI
         private void OnTimedEvent(Object myObject, EventArgs myEventArgs)
         {
             DelegateMethod();
+            aTimer.Stop();
         }
         public void DelegateMethod()
         {
@@ -170,11 +223,11 @@ namespace GUI
                         var result = parser.Parse(reader);
 
                     }
-                    if (tree.Root != null)
-                    {
-                        fillTreeControl.FillTree(treeView1, tree);
-                        treeView1.ExpandAll();
-                    }
+                    //if (tree.Root != null)
+                    //{
+                    //    fillTreeControl.FillTree(treeView1, tree);
+                    //    treeView1.ExpandAll();
+                    //}
                 }
             }
             catch (Exception ex)
@@ -186,8 +239,7 @@ namespace GUI
         private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
             FileIsChanged = true;
-            aTimer.Enabled = false;
-            aTimer.Enabled = true;
+            aTimer.Start();
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -216,7 +268,7 @@ namespace GUI
                     }
                     richTextBox1.Text = fileContent;
                     DelegateMethod();
-                    aTimer.Enabled = false;
+                    aTimer.Stop();
                     FileIsChanged = false;
                 }
             }
