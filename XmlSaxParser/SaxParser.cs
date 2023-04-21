@@ -56,11 +56,11 @@ namespace XmlSaxParser
                             }
                             if (reader.IsEmptyElement)
                             {
-                                OnElementEnd(reader.Name);
+                                OnElementEnd(reader.Name,Position);
                             }
                             break;
                         case XmlNodeType.EndElement:
-                            OnElementEnd(reader.Name);
+                            OnElementEnd(reader.Name,Position);
                             break;
                         case XmlNodeType.Text:
                             OnText(await reader.GetValueAsync(), Position);
@@ -86,9 +86,9 @@ namespace XmlSaxParser
         {
             XmlElementStart?.Invoke(this, new XmlElementStartEventArgs(name, position));
         }
-        protected virtual void OnElementEnd(string name)
+        protected virtual void OnElementEnd(string name,Position position)
         {
-            XmlElementEnd?.Invoke(this, new XmlElementEndEventArgs(name));
+            XmlElementEnd?.Invoke(this, new XmlElementEndEventArgs(name,position));
         }
         protected virtual void OnText(string text,Position position)
         {

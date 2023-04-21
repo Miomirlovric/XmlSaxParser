@@ -41,20 +41,22 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.nodeColorsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editorTextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.nodeTextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
-            this.editorTextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.nodeTextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.searchWordToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.SuspendLayout();
             // 
             // treeView1
             // 
+            this.treeView1.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
             this.treeView1.Dock = System.Windows.Forms.DockStyle.Left;
             this.treeView1.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.treeView1.Location = new System.Drawing.Point(0, 24);
@@ -65,6 +67,7 @@
             // 
             // richTextBox1
             // 
+            this.richTextBox1.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
             this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.richTextBox1.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.richTextBox1.HideSelection = false;
@@ -77,9 +80,11 @@
             // 
             // menuStrip1
             // 
+            this.menuStrip1.BackColor = System.Drawing.SystemColors.InactiveBorder;
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.settingsToolStripMenuItem});
+            this.settingsToolStripMenuItem,
+            this.searchWordToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(800, 24);
@@ -146,9 +151,23 @@
             // nodeColorsToolStripMenuItem
             // 
             this.nodeColorsToolStripMenuItem.Name = "nodeColorsToolStripMenuItem";
-            this.nodeColorsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.nodeColorsToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
             this.nodeColorsToolStripMenuItem.Text = "Node colors";
             this.nodeColorsToolStripMenuItem.Click += new System.EventHandler(this.nodeColorsToolStripMenuItem_Click);
+            // 
+            // editorTextToolStripMenuItem
+            // 
+            this.editorTextToolStripMenuItem.Name = "editorTextToolStripMenuItem";
+            this.editorTextToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.editorTextToolStripMenuItem.Text = "Editor text";
+            this.editorTextToolStripMenuItem.Click += new System.EventHandler(this.editorTextToolStripMenuItem_Click);
+            // 
+            // nodeTextToolStripMenuItem
+            // 
+            this.nodeTextToolStripMenuItem.Name = "nodeTextToolStripMenuItem";
+            this.nodeTextToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.nodeTextToolStripMenuItem.Text = "Node text";
+            this.nodeTextToolStripMenuItem.Click += new System.EventHandler(this.nodeTextToolStripMenuItem_Click);
             // 
             // fileSystemWatcher1
             // 
@@ -178,24 +197,18 @@
             this.imageList1.Images.SetKeyName(3, "icons8-comments-24.png");
             this.imageList1.Images.SetKeyName(4, "icons8-filled-circle-48.png");
             // 
-            // editorTextToolStripMenuItem
+            // searchWordToolStripMenuItem
             // 
-            this.editorTextToolStripMenuItem.Name = "editorTextToolStripMenuItem";
-            this.editorTextToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.editorTextToolStripMenuItem.Text = "Editor text";
-            this.editorTextToolStripMenuItem.Click += new System.EventHandler(this.editorTextToolStripMenuItem_Click);
-            // 
-            // nodeTextToolStripMenuItem
-            // 
-            this.nodeTextToolStripMenuItem.Name = "nodeTextToolStripMenuItem";
-            this.nodeTextToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.nodeTextToolStripMenuItem.Text = "Node text";
-            this.nodeTextToolStripMenuItem.Click += new System.EventHandler(this.nodeTextToolStripMenuItem_Click);
+            this.searchWordToolStripMenuItem.Name = "searchWordToolStripMenuItem";
+            this.searchWordToolStripMenuItem.Size = new System.Drawing.Size(86, 20);
+            this.searchWordToolStripMenuItem.Text = "Search Word";
+            this.searchWordToolStripMenuItem.Click += new System.EventHandler(this.searchWordToolStripMenuItem_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Window;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.splitter1);
             this.Controls.Add(this.richTextBox1);
@@ -234,5 +247,6 @@
         private ToolStripMenuItem nodeColorsToolStripMenuItem;
         private ToolStripMenuItem editorTextToolStripMenuItem;
         private ToolStripMenuItem nodeTextToolStripMenuItem;
+        private ToolStripMenuItem searchWordToolStripMenuItem;
     }
 }
