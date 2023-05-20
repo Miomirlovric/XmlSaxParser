@@ -15,15 +15,17 @@ namespace GUI
         public delegate void Del();
         public SaxParser parser { get; set; }
         public XmlTree tree { get; set; }
-        public FillTreeControl fillTreeControl { get; set; }
         public bool FileIsChanged { get; set; } = false;
         public string documentPath { get; set; } = "";
         public Timer aTimer { get; set; }
         public FillTreeHandler treehandler { get; set;}
+        FindWord dlg;
 
         public Form1()
         {
             InitializeComponent();
+
+            dlg = new FindWord(richTextBox1);
             aTimer = new System.Windows.Forms.Timer();
             aTimer.Interval = 6000;
             aTimer.Tick += OnTimedEvent;
@@ -31,14 +33,7 @@ namespace GUI
             parser = new SaxParser();
             tree = new XmlTree();
             treehandler = new FillTreeHandler(treeView1,richTextBox1) { view = treeView1,stack = new Stack<TreeNode>()};  
-            fillTreeControl = new FillTreeControl(treeView1, tree);
             treeView1.ImageList = imageList1;
-            //parser.XmlElementStart += tree.ElementStartHandler;
-            //parser.XmlElementEnd += tree.ElementEndHandler;
-            //parser.XmlText += tree.TextHandler;
-            //parser.XmlAtribute += tree.AtributeHandler;
-            //parser.XmlComment += tree.CommentHandler;
-            //parser.XmlCDATA += tree.CDATAHandler;
             parser.XmlElementStart += treehandler.ElementStartHandler;
             parser.XmlElementEnd += treehandler.ElementEndHandler;
             parser.XmlText += treehandler.TextHandler;
@@ -68,22 +63,19 @@ namespace GUI
 
             private void ColorSelections(Position position,int length,string NodeType,int KeyLength = 0)
             {
+                var ln = position.LineNumber - 1;
+                var lp = position.LinePosition - 1;
+                var i = RichTextBox.GetFirstCharIndexFromLine(ln);
+                i = i + lp;
                 if (NodeType != "Atribute")
                 {
-                    var ln = position.LineNumber - 1;
-                    var lp = position.LinePosition - 1;
-                    var i = RichTextBox.GetFirstCharIndexFromLine(ln);
-                    i = i + lp;
                     RichTextBox.DeselectAll();
                     RichTextBox.Select(i, length);
                     RichTextBox.SelectionColor = Colors[NodeType];
                 }
                 else
                 {
-                    var ln = position.LineNumber - 1;
-                    var lp = position.LinePosition - 1;
-                    var i = RichTextBox.GetFirstCharIndexFromLine(ln);
-                    i = i + lp;
+
                     RichTextBox.DeselectAll();
                     RichTextBox.Select(i, KeyLength);
                     RichTextBox.SelectionColor = Colors["Key"];
@@ -92,12 +84,10 @@ namespace GUI
                     RichTextBox.SelectionColor = Colors["Value"];
                     RichTextBox.DeselectAll();
                 }
-
             }
 
             public void ElementStartHandler(object sender, XmlElementStartEventArgs args)
             {
-                var newElement = new XmlElement(args.Name) { Position = args.Position };
                 // If element stack is empty, this element is the root.
                 if (stack.Count == 0)
                 {
@@ -188,126 +178,11 @@ namespace GUI
             }
         }
 
-        public class FillTreeControl
+        
+        private async void OnTimedEvent(Object myObject, EventArgs myEventArgs)
         {
-            public TreeView view { get; set; }
-            public XmlTree tree { get; set; }
-            public Dictionary<string, Color> Colors;
-
-            public FillTreeControl(TreeView view, XmlTree tree)
-            {
-                this.view = view;
-                this.tree = tree;
-                Colors = new Dictionary<string, Color>()
-            {
-                { "Element", Color.Green },{ "Comment", Color.LightGreen },{ "Text", Color.GreenYellow },
-                { "CDATA", Color.LightBlue }, { "Atribute", Color.Blue }
-            };
-            }
-
-            public void FillTree(TreeView view, XmlTree tree)
-            {
-                view.BeginUpdate();
-                view.Nodes.Clear();
-                view.Nodes.Add(((XmlElement)tree.Root).Name);
-                foreach (var atribute in ((XmlElement)tree.Root).Attributes)
-                {
-                    var x = view.Nodes[0].Nodes.Add(atribute.Key + "=\"" + atribute.Value.Value + "\"");
-                    x.Tag = atribute.Value.Position;
-                }
-                view.Nodes[0].ImageIndex = 0;
-                view.Nodes[0].ForeColor = Colors["Element"];
-                view.Nodes[0].Tag = tree.Root.Position;
-                IterateThroughTree((List<XmlNode>)tree.Root.Children, view.Nodes[0]);
-                view.EndUpdate();
-            }
-
-            public void ClearTree()
-            {
-                view.BeginUpdate();
-                view.Nodes.Clear();
-                view.EndUpdate();
-            }
-
-            private void IterateThroughTree(List<XmlNode> nodes, TreeNode prevNode)
-            {
-                int counter = 0;
-                if (nodes.Count > 0)
-                {
-                    foreach (var node in nodes)
-                    {
-                        prevNode.Nodes.Add(GetValueOfNode(node));
-                        prevNode.Nodes[counter].Tag = node.Position;
-                        if (node.NodeType == NodeType.Element)
-                        {
-                            if (((XmlElement)node).Attributes.Count > 0)
-                            {
-                                int atCounter = 0;
-                                foreach (var atribute in ((XmlElement)node).Attributes)
-                                {
-                                    prevNode.Nodes[counter].Nodes.Add(atribute.Key + "=\"" + atribute.Value.Value + "\"");
-                                    prevNode.Nodes[counter].Nodes[atCounter].Tag = atribute.Value.Position;
-                                    ColorNodes(atribute.Value, prevNode.Nodes[counter].Nodes[atCounter]);
-                                    atCounter++;
-                                }
-                            }
-                        }
-                        ColorNodes(node, prevNode.Nodes[counter]);
-                        IterateThroughTree((List<XmlNode>)node.Children, prevNode.Nodes[counter]);
-                        counter++;
-                    }
-                }
-            }
-
-            private string GetValueOfNode(XmlNode x)
-            {
-                switch (x.NodeType)
-                {
-                    case NodeType.Element:
-                        return ((XmlElement)x).Name;
-                    case NodeType.Comment:
-                        return ((XmlComment)x).Comment;
-                    case NodeType.Text:
-                        return ((XmlText)x).Text;
-                    case NodeType.CDATA:
-                        return ((XmlCDATA)x).CDATA;
-                    default:
-                        throw new Exception("unknown node type");
-                }
-            }
-            public void ColorNodes(XmlNode x, TreeNode prevNode)
-            {
-                switch (x.NodeType)
-                {
-                    case NodeType.Element:
-                        prevNode.ForeColor = Colors["Element"];
-                        prevNode.ImageIndex = 1;
-                        break;
-                    case NodeType.Comment:
-                        prevNode.ForeColor = Colors["Comment"];
-                        prevNode.ImageIndex = 2;
-                        break;
-                    case NodeType.Text:
-                        prevNode.ForeColor = Colors["Text"];
-                        prevNode.ImageIndex = 2;
-                        break;
-                    case NodeType.CDATA:
-                        prevNode.ForeColor = Colors["CDATA"];
-                        prevNode.ImageIndex = 3;
-                        break;
-                    case NodeType.Atribute:
-                        prevNode.ForeColor = Colors["Atribute"];
-                        prevNode.ImageIndex = 4;
-                        break;
-                    default:
-                        throw new Exception("unknown node type");
-                }
-            }
-        }
-        private void OnTimedEvent(Object myObject, EventArgs myEventArgs)
-        {
-
-         DelegateMethod(); 
+    
+         await DelegateMethod(); 
          aTimer.Stop();
 
         }
@@ -322,11 +197,7 @@ namespace GUI
                     {
                         await parser.Parse(reader);
                     }
-                    //if (tree.Root != null)
-                    //{
-                    //    fillTreeControl.FillTree(treeView1, tree);
-                    //    treeView1.ExpandAll();
-                    //}
+
                 }
             }
 
@@ -393,13 +264,10 @@ namespace GUI
             richTextBox1.Text = String.Empty;
             richTextBox1.Text = String.Empty;
             documentPath = String.Empty;
-            fillTreeControl.ClearTree();
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //SaveFileDialog saveFileDialog1 = new SaveFileDialog();
-
             saveFileDialog1.Filter = "xml files (*.xml)|*.xml|All files (*.*)|*.*";
             saveFileDialog1.FilterIndex = 2;
             saveFileDialog1.RestoreDirectory = true;
@@ -495,10 +363,7 @@ namespace GUI
 
         private void searchWordToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (FindWord dlg = new FindWord(richTextBox1))
-            {
-                dlg.ShowDialog();             
-            }
+                dlg.Show(this);              
         }
     }
 }

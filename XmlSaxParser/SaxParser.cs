@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
+using System.Threading;
 
 namespace XmlSaxParser
 {
@@ -33,54 +34,54 @@ namespace XmlSaxParser
 
         XmlReaderSettings settings = new XmlReaderSettings();
 
-        public async Task Parse(TextReader textReader)
+public async Task Parse(TextReader textReader)
+{
+    using (XmlReader reader = XmlReader.Create(textReader, settings))
+    {
+        IXmlLineInfo xli = (IXmlLineInfo)reader;               
+        while (await reader.ReadAsync())
         {
-            using (XmlReader reader = XmlReader.Create(textReader, settings))
+            var Position = new Position { LineNumber = xli.LineNumber, LinePosition = xli.LinePosition };
+            switch (reader.NodeType)
             {
-                IXmlLineInfo xli = (IXmlLineInfo)reader;               
-                while (await reader.ReadAsync())
-                {
-                    var Position = new Position { LineNumber = xli.LineNumber, LinePosition = xli.LinePosition };
-                    switch (reader.NodeType)
+                case XmlNodeType.Element:
+                    OnElementStart(reader.Name, Position);
+                    if (reader.HasAttributes)
                     {
-                        case XmlNodeType.Element:
-                            OnElementStart(reader.Name, Position);
-                            if (reader.HasAttributes)
-                            {
-                                while (reader.MoveToNextAttribute())
-                                {
-                                    OnAtribute(reader.Name, reader.Value, new Position() { LineNumber=xli.LineNumber,LinePosition=xli.LinePosition});
-                                }
-                                // Move the reader back to the element node.
-                                reader.MoveToElement();
-                            }
-                            if (reader.IsEmptyElement)
-                            {
-                                OnElementEnd(reader.Name,Position);
-                            }
-                            break;
-                        case XmlNodeType.EndElement:
-                            OnElementEnd(reader.Name,Position);
-                            break;
-                        case XmlNodeType.Text:
-                            OnText(await reader.GetValueAsync(), Position);
-                            break;
-                        case XmlNodeType.Comment:
-                            OnComment(await reader.GetValueAsync(), Position);
-
-                            break;
-                        case XmlNodeType.CDATA:
-                            OnCDATA(reader.Value, Position);
-
-                            break;
-
-                        default:
-                            
-                            break;
+                        while (reader.MoveToNextAttribute())
+                        {
+                            OnAtribute(reader.Name, reader.Value, new Position() { LineNumber=xli.LineNumber,LinePosition=xli.LinePosition});
+                        }
+                        // Move the reader back to the element node.
+                        reader.MoveToElement();
                     }
-                }
+                    if (reader.IsEmptyElement)
+                    {
+                        OnElementEnd(reader.Name,Position);
+                    }
+                    break;
+                case XmlNodeType.EndElement:
+                    OnElementEnd(reader.Name,Position);
+                    break;
+                case XmlNodeType.Text:
+                    OnText(await reader.GetValueAsync(), Position);
+                    break;
+                case XmlNodeType.Comment:
+                    OnComment(await reader.GetValueAsync(), Position);
+
+                    break;
+                case XmlNodeType.CDATA:
+                    OnCDATA(reader.Value, Position);
+
+                    break;
+
+                default:
+                            
+                    break;
             }
         }
+    }
+}
 
         protected virtual void OnElementStart(string name, Position position)
         {

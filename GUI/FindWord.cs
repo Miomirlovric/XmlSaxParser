@@ -21,6 +21,12 @@ namespace GUI
             RichTextBox = richTextBox;
         }
 
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            this.Hide();
+            e.Cancel = true;
+        }
+
         private void FindButton_Click(object sender, EventArgs e)
         {
             if (RichTextBox.Text != String.Empty && Find_tb.Text != String.Empty)
