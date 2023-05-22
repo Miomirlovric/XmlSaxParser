@@ -28,51 +28,51 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.Find_tb = new System.Windows.Forms.TextBox();
-            this.FindButton = new System.Windows.Forms.Button();
-            this.FindNextButton = new System.Windows.Forms.Button();
-            this.SuspendLayout();
+            Find_tb = new TextBox();
+            FindButton = new Button();
+            FindNextButton = new Button();
+            SuspendLayout();
             // 
             // Find_tb
             // 
-            this.Find_tb.Location = new System.Drawing.Point(12, 12);
-            this.Find_tb.Name = "Find_tb";
-            this.Find_tb.Size = new System.Drawing.Size(216, 23);
-            this.Find_tb.TabIndex = 0;
+            Find_tb.Location = new Point(12, 12);
+            Find_tb.Name = "Find_tb";
+            Find_tb.Size = new Size(216, 23);
+            Find_tb.TabIndex = 0;
             // 
             // FindButton
             // 
-            this.FindButton.Location = new System.Drawing.Point(12, 41);
-            this.FindButton.Name = "FindButton";
-            this.FindButton.Size = new System.Drawing.Size(75, 23);
-            this.FindButton.TabIndex = 1;
-            this.FindButton.Text = "Find";
-            this.FindButton.UseVisualStyleBackColor = true;
-            this.FindButton.Click += new System.EventHandler(this.FindButton_Click);
+            FindButton.Location = new Point(12, 41);
+            FindButton.Name = "FindButton";
+            FindButton.Size = new Size(75, 23);
+            FindButton.TabIndex = 1;
+            FindButton.Text = "Find";
+            FindButton.UseVisualStyleBackColor = true;
+            FindButton.Click += FindButton_Click;
             // 
             // FindNextButton
             // 
-            this.FindNextButton.Location = new System.Drawing.Point(152, 41);
-            this.FindNextButton.Name = "FindNextButton";
-            this.FindNextButton.Size = new System.Drawing.Size(75, 23);
-            this.FindNextButton.TabIndex = 2;
-            this.FindNextButton.Text = "Find Next";
-            this.FindNextButton.UseVisualStyleBackColor = true;
-            this.FindNextButton.Click += new System.EventHandler(this.FindNextButton_Click);
+            FindNextButton.Location = new Point(152, 41);
+            FindNextButton.Name = "FindNextButton";
+            FindNextButton.Size = new Size(75, 23);
+            FindNextButton.TabIndex = 2;
+            FindNextButton.Text = "Find Next";
+            FindNextButton.UseVisualStyleBackColor = true;
+            FindNextButton.Click += FindNextButton_Click;
             // 
             // FindWord
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(239, 74);
-            this.Controls.Add(this.FindNextButton);
-            this.Controls.Add(this.FindButton);
-            this.Controls.Add(this.Find_tb);
-            this.Name = "FindWord";
-            this.Text = "FindWord";
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(239, 74);
+            Controls.Add(FindNextButton);
+            Controls.Add(FindButton);
+            Controls.Add(Find_tb);
+            FormBorderStyle = FormBorderStyle.FixedToolWindow;
+            Name = "FindWord";
+            Text = "FindWord";
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
