@@ -28,72 +28,72 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.ApplyButton = new System.Windows.Forms.Button();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.ColorPanel = new System.Windows.Forms.Panel();
-            this.ChangeColor = new System.Windows.Forms.Button();
-            this.CancelB = new System.Windows.Forms.Button();
-            this.SuspendLayout();
+            ApplyButton = new Button();
+            comboBox1 = new ComboBox();
+            ColorPanel = new Panel();
+            ChangeColor = new Button();
+            CancelB = new Button();
+            SuspendLayout();
             // 
             // ApplyButton
             // 
-            this.ApplyButton.Location = new System.Drawing.Point(103, 76);
-            this.ApplyButton.Name = "ApplyButton";
-            this.ApplyButton.Size = new System.Drawing.Size(75, 23);
-            this.ApplyButton.TabIndex = 0;
-            this.ApplyButton.Text = "Apply";
-            this.ApplyButton.UseVisualStyleBackColor = true;
-            this.ApplyButton.Click += new System.EventHandler(this.ApplyButton_Click);
+            ApplyButton.Location = new Point(103, 76);
+            ApplyButton.Name = "ApplyButton";
+            ApplyButton.Size = new Size(75, 23);
+            ApplyButton.TabIndex = 0;
+            ApplyButton.Text = "Apply";
+            ApplyButton.UseVisualStyleBackColor = true;
+            ApplyButton.Click += ApplyButton_Click;
             // 
             // comboBox1
             // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(20, 20);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(121, 23);
-            this.comboBox1.TabIndex = 1;
+            comboBox1.FormattingEnabled = true;
+            comboBox1.Location = new Point(20, 20);
+            comboBox1.Name = "comboBox1";
+            comboBox1.Size = new Size(121, 23);
+            comboBox1.TabIndex = 1;
             // 
             // ColorPanel
             // 
-            this.ColorPanel.Location = new System.Drawing.Point(156, 22);
-            this.ColorPanel.Name = "ColorPanel";
-            this.ColorPanel.Size = new System.Drawing.Size(22, 21);
-            this.ColorPanel.TabIndex = 2;
+            ColorPanel.Location = new Point(156, 22);
+            ColorPanel.Name = "ColorPanel";
+            ColorPanel.Size = new Size(22, 21);
+            ColorPanel.TabIndex = 2;
             // 
             // ChangeColor
             // 
-            this.ChangeColor.Location = new System.Drawing.Point(184, 22);
-            this.ChangeColor.Name = "ChangeColor";
-            this.ChangeColor.Size = new System.Drawing.Size(75, 23);
-            this.ChangeColor.TabIndex = 3;
-            this.ChangeColor.Text = "Select";
-            this.ChangeColor.UseVisualStyleBackColor = true;
-            this.ChangeColor.Click += new System.EventHandler(this.ChangeColor_Click);
+            ChangeColor.Location = new Point(184, 22);
+            ChangeColor.Name = "ChangeColor";
+            ChangeColor.Size = new Size(75, 23);
+            ChangeColor.TabIndex = 3;
+            ChangeColor.Text = "Select";
+            ChangeColor.UseVisualStyleBackColor = true;
+            ChangeColor.Click += ChangeColor_Click;
             // 
             // CancelB
             // 
-            this.CancelB.Location = new System.Drawing.Point(184, 76);
-            this.CancelB.Name = "CancelB";
-            this.CancelB.Size = new System.Drawing.Size(75, 23);
-            this.CancelB.TabIndex = 4;
-            this.CancelB.Text = "Cancel";
-            this.CancelB.UseVisualStyleBackColor = true;
-            this.CancelB.Click += new System.EventHandler(this.CancelB_Click);
+            CancelB.Location = new Point(184, 76);
+            CancelB.Name = "CancelB";
+            CancelB.Size = new Size(75, 23);
+            CancelB.TabIndex = 4;
+            CancelB.Text = "Cancel";
+            CancelB.UseVisualStyleBackColor = true;
+            CancelB.Click += CancelB_Click;
             // 
             // ColorPicker
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(278, 136);
-            this.Controls.Add(this.CancelB);
-            this.Controls.Add(this.ChangeColor);
-            this.Controls.Add(this.ColorPanel);
-            this.Controls.Add(this.comboBox1);
-            this.Controls.Add(this.ApplyButton);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
-            this.Name = "ColorPicker";
-            this.ResumeLayout(false);
-
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(278, 136);
+            Controls.Add(CancelB);
+            Controls.Add(ChangeColor);
+            Controls.Add(ColorPanel);
+            Controls.Add(comboBox1);
+            Controls.Add(ApplyButton);
+            FormBorderStyle = FormBorderStyle.FixedToolWindow;
+            Name = "ColorPicker";
+            Text = "Select color";
+            ResumeLayout(false);
         }
 
         #endregion

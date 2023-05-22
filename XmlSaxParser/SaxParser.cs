@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
 using System.Threading.Tasks;
 using System.Xml;
-using System.Xml.Serialization;
 
 namespace XmlSaxParser
 {
@@ -37,7 +32,7 @@ namespace XmlSaxParser
         {
             using (XmlReader reader = XmlReader.Create(textReader, settings))
             {
-                IXmlLineInfo xli = (IXmlLineInfo)reader;               
+                IXmlLineInfo xli = (IXmlLineInfo)reader;
                 while (await reader.ReadAsync())
                 {
                     var Position = new Position { LineNumber = xli.LineNumber, LinePosition = xli.LinePosition };
@@ -49,33 +44,29 @@ namespace XmlSaxParser
                             {
                                 while (reader.MoveToNextAttribute())
                                 {
-                                    OnAtribute(reader.Name, reader.Value, new Position() { LineNumber=xli.LineNumber,LinePosition=xli.LinePosition});
+                                    OnAtribute(reader.Name, reader.Value, new Position() { LineNumber = xli.LineNumber, LinePosition = xli.LinePosition });
                                 }
                                 // Move the reader back to the element node.
                                 reader.MoveToElement();
                             }
                             if (reader.IsEmptyElement)
                             {
-                                OnElementEnd(reader.Name);
+                                OnElementEnd(reader.Name, Position);
                             }
                             break;
                         case XmlNodeType.EndElement:
-                            OnElementEnd(reader.Name);
+                            OnElementEnd(reader.Name, Position);
                             break;
                         case XmlNodeType.Text:
                             OnText(await reader.GetValueAsync(), Position);
                             break;
                         case XmlNodeType.Comment:
                             OnComment(await reader.GetValueAsync(), Position);
-
                             break;
                         case XmlNodeType.CDATA:
                             OnCDATA(reader.Value, Position);
-
                             break;
-
                         default:
-                            
                             break;
                     }
                 }
@@ -86,25 +77,25 @@ namespace XmlSaxParser
         {
             XmlElementStart?.Invoke(this, new XmlElementStartEventArgs(name, position));
         }
-        protected virtual void OnElementEnd(string name)
+        protected virtual void OnElementEnd(string name, Position position)
         {
-            XmlElementEnd?.Invoke(this, new XmlElementEndEventArgs(name));
+            XmlElementEnd?.Invoke(this, new XmlElementEndEventArgs(name, position));
         }
-        protected virtual void OnText(string text,Position position)
+        protected virtual void OnText(string text, Position position)
         {
             XmlText?.Invoke(this, new XmlTextEventArgs(text, position));
         }
         protected virtual void OnAtribute(string atrText, string atrValue, Position position)
         {
-            XmlAtribute?.Invoke(this, new XmlAtributeEventArgs(atrText, atrValue,position));
+            XmlAtribute?.Invoke(this, new XmlAtributeEventArgs(atrText, atrValue, position));
         }
         protected virtual void OnComment(string comment, Position position)
         {
-            XmlComment?.Invoke(this, new XmlCommentEventArgs(comment,position));
+            XmlComment?.Invoke(this, new XmlCommentEventArgs(comment, position));
         }
         protected virtual void OnCDATA(string comment, Position position)
         {
-            XmlCDATA?.Invoke(this, new XmlCDATAEventArgs(comment,position));
+            XmlCDATA?.Invoke(this, new XmlCDATAEventArgs(comment, position));
         }
     }
 }

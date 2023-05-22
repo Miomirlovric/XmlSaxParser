@@ -22,6 +22,6 @@ namespace XmlSaxParser
 
         public string Name { get; private set; }
 
-        public readonly Dictionary<string,XmlAttribute> Attributes = new Dictionary<string, XmlAttribute>();
+        public Dictionary<string,XmlAttribute> Attributes = new Dictionary<string, XmlAttribute>();
     }
 }

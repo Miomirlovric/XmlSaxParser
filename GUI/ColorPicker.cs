@@ -43,7 +43,7 @@ namespace GUI
         private void ChangeColor_Click(object sender, EventArgs e)
         {
             ColorDialog MyDialog = new ColorDialog();
-            if (MyDialog.ShowDialog() == DialogResult.OK) 
+            if (MyDialog.ShowDialog() == DialogResult.OK)
             {
                 var i = comboBox1.SelectedIndex;
                 colors[comboBox1.Text] = MyDialog.Color;
