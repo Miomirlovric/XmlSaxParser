@@ -1,16 +1,20 @@
 using System.Security.Cryptography.X509Certificates;
 using System.Windows.Forms;
 using XmlSaxParser;
-using static GUI.Form1;
+using static GUI.FormMain;
 using System.Timers;
 using Timer = System.Windows.Forms.Timer;
 using System.Diagnostics.Metrics;
 using System.Xml.Linq;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
+using System.Runtime.InteropServices;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using TreeView = System.Windows.Forms.TreeView;
+using System.Drawing;
 
 namespace GUI
 {
-    public partial class Form1 : Form
+    public partial class FormMain : Form
     {
         public delegate void Del();
         public SaxParser parser { get; set; }
@@ -19,21 +23,23 @@ namespace GUI
         public string documentPath { get; set; } = "";
         public Timer aTimer { get; set; }
         public FillTreeHandler treehandler { get; set;}
-        FindWord dlg;
+        FindWord findTextDlg;
+        private bool updating = false;
+        [DllImport("user32.dll")]
+        private static extern long LockWindowUpdate(long Handle);
 
-        public Form1()
+        public FormMain()
         {
             InitializeComponent();
 
-            dlg = new FindWord(richTextBox1);
+            findTextDlg = new FindWord(richTextBox);
             aTimer = new System.Windows.Forms.Timer();
             aTimer.Interval = 6000;
             aTimer.Tick += OnTimedEvent;
-            //Wait = true;
             parser = new SaxParser();
             tree = new XmlTree();
-            treehandler = new FillTreeHandler(treeView1,richTextBox1) { view = treeView1,stack = new Stack<TreeNode>()};  
-            treeView1.ImageList = imageList1;
+            treehandler = new FillTreeHandler(treeView, richTextBox) { view = treeView, stack = new Stack<TreeNode>() };  
+            treeView.ImageList = imageList1;
             parser.XmlElementStart += treehandler.ElementStartHandler;
             parser.XmlElementEnd += treehandler.ElementEndHandler;
             parser.XmlText += treehandler.TextHandler;
@@ -49,7 +55,7 @@ namespace GUI
             public Dictionary<string, Color> Colors { get; set; }
             public RichTextBox RichTextBox { get; set; }
             
-            public FillTreeHandler(TreeView view,RichTextBox richTextBox)
+            public FillTreeHandler(TreeView view, RichTextBox richTextBox)
             {
                 this.RichTextBox = richTextBox;
                 this.view = view;
@@ -61,7 +67,7 @@ namespace GUI
             };
             }
 
-            private void ColorSelections(Position position,int length,string NodeType,int KeyLength = 0)
+            private void ColorSelections(Position position, int length, string NodeType, int KeyLength = 0)
             {
                 var ln = position.LineNumber - 1;
                 var lp = position.LinePosition - 1;
@@ -82,8 +88,8 @@ namespace GUI
                     RichTextBox.DeselectAll();
                     RichTextBox.Select(i+KeyLength, length-KeyLength);
                     RichTextBox.SelectionColor = Colors["Value"];
-                    RichTextBox.DeselectAll();
                 }
+                RichTextBox.DeselectAll();
             }
 
             public void ElementStartHandler(object sender, XmlElementStartEventArgs args)
@@ -106,7 +112,7 @@ namespace GUI
                     node.ImageIndex = 1;
                     stack.Push(node);
                 }
-                ColorSelections(args.Position, args.Name.Count(),"Element");
+                ColorSelections(args.Position, args.Name.Count(), "Element");
             }
 
             public void ElementEndHandler(object sender, XmlElementEndEventArgs args)
@@ -142,11 +148,11 @@ namespace GUI
                     throw new Exception("XmlAtribute must be inside opening tag");
                 }
                 // Add atribute name and value to the XmlElement.
-                var node = stack.Peek().Nodes.Add(args.Name+"=\""+args.Value+"\"");
+                var node = stack.Peek().Nodes.Add(args.Name + "=\"" + args.Value + "\"");
                 node.ForeColor = Colors["Atribute"];
-                node.Tag = new XmlAttribute(args.Name,args.Value,args.Position);
+                node.Tag = new XmlAttribute(args.Name, args.Value, args.Position);
                 node.ImageIndex = 4;
-                ColorSelections(args.Position, args.Name.Count()+args.Value.Count()+3, "Atribute",args.Name.Count());
+                ColorSelections(args.Position, args.Name.Count() + args.Value.Count() + 3, "Atribute", args.Name.Count());
             }
             public void CommentHandler(object sender, XmlCommentEventArgs args)
             {
@@ -158,7 +164,7 @@ namespace GUI
                 { 
                     var node = stack.Peek().Nodes.Add(args.Comment);
                     node.ForeColor = Colors["Comment"];
-                    node.Tag = new XmlComment(args.Comment) { Position = args.Position};
+                    node.Tag = new XmlComment(args.Comment) { Position = args.Position };
                     node.ImageIndex = 2;
                     ColorSelections(args.Position, args.Comment.Count(), "Comment");
                 }
@@ -181,23 +187,30 @@ namespace GUI
         
         private async void OnTimedEvent(Object myObject, EventArgs myEventArgs)
         {
-    
-         await DelegateMethod(); 
-         aTimer.Stop();
+
+            aTimer.Stop();
+            var selectionStart = this.richTextBox.SelectionStart;
+            var selectionLength = richTextBox.SelectionLength;
+            LockWindowUpdate((long)richTextBox.Handle);
+            await DelegateMethod();
+            richTextBox.SelectionStart = selectionStart;
+            richTextBox.SelectionLength = selectionLength;
+            LockWindowUpdate(0);
+            richTextBox.Invalidate();
 
         }
         public async Task DelegateMethod()
         {
             try
             {
-                if (richTextBox1.Text != null)
+                if (richTextBox.TextLength != 0)
                 {
-                    treeView1.Nodes.Clear();
-                    using (TextReader reader = new StringReader(richTextBox1.Text))
+                    updating = true;
+                    treeView.Nodes.Clear();
+                    using (TextReader reader = new StringReader(richTextBox.Text))
                     {
                         await parser.Parse(reader);
                     }
-
                 }
             }
 
@@ -205,41 +218,46 @@ namespace GUI
             {
                 MessageBox.Show(ex.Message, "Validation eror", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
+            finally
+            {
+                updating = false;
+            }
         }
         private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
-            FileIsChanged = true;
-            aTimer.Stop();
-            aTimer.Start();
+            if (!updating)
+            {
+                FileIsChanged = true;
+                aTimer.Start();
+            }
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var fileContent = string.Empty;
-
-            using (openFileDialog1)
+            using (openFileDialog)
             {
-                openFileDialog1.InitialDirectory = "c:\\";
-                openFileDialog1.Filter = "xml files (*.xml)|*.xml|All files (*.*)|*.*";
-                openFileDialog1.FilterIndex = 2;
-                openFileDialog1.RestoreDirectory = true;
-
-                if (openFileDialog1.ShowDialog() == DialogResult.OK)
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    FileIsChanged = false;
+                    Clear();
                     //Get the path of specified file
-                    documentPath = openFileDialog1.FileName;
-
+                    documentPath = openFileDialog.FileName;
                     //Read the contents of the file into a stream
-                    var fileStream = openFileDialog1.OpenFile();
+                    var fileStream = openFileDialog.OpenFile();
+                    using StreamReader reader = new StreamReader(fileStream);
+                    var fileContent = reader.ReadToEnd();
 
-                    using (StreamReader reader = new StreamReader(fileStream))
-                    {
-                        fileContent = reader.ReadToEnd();
-                    }
-                    richTextBox1.Text = fileContent;
-                    DelegateMethod();
                     aTimer.Stop();
+                    updating = true;
+
+                    Cursor.Current = Cursors.WaitCursor;
+                    LockWindowUpdate((long)richTextBox.Handle);
+                    richTextBox.Text = fileContent;
+                    Reload();
+                    LockWindowUpdate(0);
+                    richTextBox.Select(0, 0);
+                    richTextBox.Invalidate();
+
+                    updating = false;
                     FileIsChanged = false;
                 }
             }
@@ -247,9 +265,9 @@ namespace GUI
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (documentPath != string.Empty && richTextBox1.Text != string.Empty)
+            if (documentPath != string.Empty && richTextBox.Text != string.Empty)
             {
-                File.WriteAllText(documentPath, richTextBox1.Text);
+                File.WriteAllText(documentPath, richTextBox.Text);
                 MessageBox.Show("File saved", "Notification", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 FileIsChanged = false;
             }
@@ -261,29 +279,18 @@ namespace GUI
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            richTextBox1.Text = String.Empty;
-            richTextBox1.Text = String.Empty;
+            Clear();
             documentPath = String.Empty;
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            saveFileDialog1.Filter = "xml files (*.xml)|*.xml|All files (*.*)|*.*";
-            saveFileDialog1.FilterIndex = 2;
-            saveFileDialog1.RestoreDirectory = true;
-
-
-            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                StreamWriter writer = new StreamWriter(saveFileDialog1.OpenFile());
+                using StreamWriter writer = new StreamWriter(saveFileDialog.OpenFile());
+                writer.Write(richTextBox.Text);
 
-                writer.Write(richTextBox1.Text);
-
-                writer.Dispose();
-
-                writer.Close();
-
-                documentPath = saveFileDialog1.FileName;
+                documentPath = saveFileDialog.FileName;
                 MessageBox.Show("File saved", "Notification", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 FileIsChanged = false;
             }
@@ -315,10 +322,10 @@ namespace GUI
             var length = e.Node.Text.Count();
             var ln = ((XmlNode)x).Position.LineNumber - 1;
             var lp = ((XmlNode)x).Position.LinePosition - 1;
-            var i = richTextBox1.GetFirstCharIndexFromLine(ln);
+            var i = richTextBox.GetFirstCharIndexFromLine(ln);
             i = i + lp;
-            richTextBox1.DeselectAll();
-            richTextBox1.Select(i, length);
+            richTextBox.DeselectAll();
+            richTextBox.Select(i, length);
         }
 
         private void nodeColorsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -329,19 +336,33 @@ namespace GUI
                 {
                     var result = dlg.colors;
                     treehandler.Colors = result;
-                    DelegateMethod();
+                    Reload();
                 }
             }
         }
-
+        private void Clear()
+        {
+            updating = true;
+            richTextBox.Clear();
+            treeView.Nodes.Clear();
+            updating = false;
+        }
+        private async void Reload()
+        {
+            await DelegateMethod();
+        }
         private void editorTextToolStripMenuItem_Click(object sender, EventArgs e)
         {
             using (FontDialog font = new FontDialog())
             {
                 if (font.ShowDialog() == DialogResult.OK)
                 {
-                    richTextBox1.Font = font.Font;
-                    DelegateMethod();
+                    LockWindowUpdate((long)richTextBox.Handle);
+                    richTextBox.Font = font.Font;
+                    Reload();
+                    richTextBox.Select(0, 0);
+                    LockWindowUpdate(0);
+                    richTextBox.Invalidate();
                 }
             }
         }
@@ -353,17 +374,20 @@ namespace GUI
 
                 if (font.ShowDialog() == DialogResult.OK)
                 {
+                    LockWindowUpdate((long)richTextBox.Handle);
                     Size size = new Size((int)font.Font.Size * 2, (int)font.Font.Size * 2);
-                    treeView1.ImageList.ImageSize = size;
-                    treeView1.Font = font.Font;
-                    DelegateMethod();
+                    treeView.ImageList.ImageSize = size;
+                    treeView.Font = font.Font;
+                    Reload();
+                    LockWindowUpdate(0);
+                    richTextBox.Invalidate();
                 }
             }
         }
 
         private void searchWordToolStripMenuItem_Click(object sender, EventArgs e)
         {
-                dlg.Show(this);              
+                findTextDlg.Show(this);              
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace GUI
 {
-    partial class Form1
+    partial class FormMain
     {
         /// <summary>
         ///  Required designer variable.
@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            this.treeView1 = new System.Windows.Forms.TreeView();
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
+            this.treeView = new System.Windows.Forms.TreeView();
+            this.richTextBox = new System.Windows.Forms.RichTextBox();
+            this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -43,53 +43,53 @@
             this.nodeColorsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editorTextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.nodeTextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.searchWordToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
-            this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.splitter1 = new System.Windows.Forms.Splitter();
-            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
-            this.searchWordToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuStrip1.SuspendLayout();
+            this.menuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.SuspendLayout();
             // 
-            // treeView1
+            // treeView
             // 
-            this.treeView1.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
-            this.treeView1.Dock = System.Windows.Forms.DockStyle.Left;
-            this.treeView1.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.treeView1.Location = new System.Drawing.Point(0, 24);
-            this.treeView1.Name = "treeView1";
-            this.treeView1.Size = new System.Drawing.Size(280, 426);
-            this.treeView1.TabIndex = 0;
-            this.treeView1.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView1_NodeMouseDoubleClick);
+            this.treeView.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
+            this.treeView.Dock = System.Windows.Forms.DockStyle.Left;
+            this.treeView.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.treeView.Location = new System.Drawing.Point(0, 24);
+            this.treeView.Name = "treeView";
+            this.treeView.Size = new System.Drawing.Size(280, 426);
+            this.treeView.TabIndex = 0;
+            this.treeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView1_NodeMouseDoubleClick);
             // 
-            // richTextBox1
+            // richTextBox
             // 
-            this.richTextBox1.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
-            this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.richTextBox1.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.richTextBox1.HideSelection = false;
-            this.richTextBox1.Location = new System.Drawing.Point(280, 24);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(520, 426);
-            this.richTextBox1.TabIndex = 1;
-            this.richTextBox1.Text = "";
-            this.richTextBox1.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged);
+            this.richTextBox.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.richTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.richTextBox.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.richTextBox.HideSelection = false;
+            this.richTextBox.Location = new System.Drawing.Point(280, 24);
+            this.richTextBox.Name = "richTextBox";
+            this.richTextBox.Size = new System.Drawing.Size(520, 426);
+            this.richTextBox.TabIndex = 1;
+            this.richTextBox.Text = "";
+            this.richTextBox.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged);
             // 
-            // menuStrip1
+            // menuStrip
             // 
-            this.menuStrip1.BackColor = System.Drawing.SystemColors.InactiveBorder;
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuStrip.BackColor = System.Drawing.SystemColors.InactiveBorder;
+            this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.settingsToolStripMenuItem,
             this.searchWordToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(800, 24);
-            this.menuStrip1.TabIndex = 2;
-            this.menuStrip1.Text = "menuStrip1";
+            this.menuStrip.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip.Name = "menuStrip";
+            this.menuStrip.Size = new System.Drawing.Size(800, 24);
+            this.menuStrip.TabIndex = 2;
+            this.menuStrip.Text = "menuStrip1";
             // 
             // fileToolStripMenuItem
             // 
@@ -169,6 +169,13 @@
             this.nodeTextToolStripMenuItem.Text = "Node text";
             this.nodeTextToolStripMenuItem.Click += new System.EventHandler(this.nodeTextToolStripMenuItem_Click);
             // 
+            // searchWordToolStripMenuItem
+            // 
+            this.searchWordToolStripMenuItem.Name = "searchWordToolStripMenuItem";
+            this.searchWordToolStripMenuItem.Size = new System.Drawing.Size(86, 20);
+            this.searchWordToolStripMenuItem.Text = "Search Word";
+            this.searchWordToolStripMenuItem.Click += new System.EventHandler(this.searchWordToolStripMenuItem_Click);
+            // 
             // fileSystemWatcher1
             // 
             this.fileSystemWatcher1.EnableRaisingEvents = true;
@@ -182,9 +189,9 @@
             this.splitter1.TabIndex = 3;
             this.splitter1.TabStop = false;
             // 
-            // openFileDialog1
+            // openFileDialog
             // 
-            this.openFileDialog1.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+            this.openFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
             // 
             // imageList1
             // 
@@ -197,29 +204,22 @@
             this.imageList1.Images.SetKeyName(3, "icons8-comments-24.png");
             this.imageList1.Images.SetKeyName(4, "icons8-filled-circle-48.png");
             // 
-            // searchWordToolStripMenuItem
-            // 
-            this.searchWordToolStripMenuItem.Name = "searchWordToolStripMenuItem";
-            this.searchWordToolStripMenuItem.Size = new System.Drawing.Size(86, 20);
-            this.searchWordToolStripMenuItem.Text = "Search Word";
-            this.searchWordToolStripMenuItem.Click += new System.EventHandler(this.searchWordToolStripMenuItem_Click);
-            // 
-            // Form1
+            // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.splitter1);
-            this.Controls.Add(this.richTextBox1);
-            this.Controls.Add(this.treeView1);
-            this.Controls.Add(this.menuStrip1);
-            this.MainMenuStrip = this.menuStrip1;
-            this.Name = "Form1";
+            this.Controls.Add(this.richTextBox);
+            this.Controls.Add(this.treeView);
+            this.Controls.Add(this.menuStrip);
+            this.MainMenuStrip = this.menuStrip;
+            this.Name = "FormMain";
             this.Text = "XML Tree Editor";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
+            this.menuStrip.ResumeLayout(false);
+            this.menuStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -228,19 +228,19 @@
 
         #endregion
 
-        private TreeView treeView1;
-        private RichTextBox richTextBox1;
-        private MenuStrip menuStrip1;
+        private TreeView treeView;
+        private RichTextBox richTextBox;
+        private MenuStrip menuStrip;
         private ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.Timer timer1;
         private ToolStripMenuItem openToolStripMenuItem;
         private ToolStripMenuItem saveToolStripMenuItem;
         private ToolStripMenuItem newToolStripMenuItem;
         private FileSystemWatcher fileSystemWatcher1;
-        private SaveFileDialog saveFileDialog1;
+        private SaveFileDialog saveFileDialog;
         private ToolStripMenuItem saveAsToolStripMenuItem;
         private Splitter splitter1;
-        private OpenFileDialog openFileDialog1;
+        private OpenFileDialog openFileDialog;
         private ImageList imageList1;
         private ToolStripMenuItem exitToolStripMenuItem;
         private ToolStripMenuItem settingsToolStripMenuItem;
