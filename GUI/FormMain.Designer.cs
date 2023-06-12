@@ -50,8 +50,11 @@
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
+            this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // treeView
@@ -76,6 +79,7 @@
             this.richTextBox.Size = new System.Drawing.Size(520, 426);
             this.richTextBox.TabIndex = 1;
             this.richTextBox.Text = "";
+            this.richTextBox.WordWrap = false;
             this.richTextBox.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged);
             // 
             // menuStrip
@@ -151,27 +155,31 @@
             // nodeColorsToolStripMenuItem
             // 
             this.nodeColorsToolStripMenuItem.Name = "nodeColorsToolStripMenuItem";
-            this.nodeColorsToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
-            this.nodeColorsToolStripMenuItem.Text = "Node colors";
+            this.nodeColorsToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
+            this.nodeColorsToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.nodeColorsToolStripMenuItem.Text = "Node colors...";
             this.nodeColorsToolStripMenuItem.Click += new System.EventHandler(this.nodeColorsToolStripMenuItem_Click);
             // 
             // editorTextToolStripMenuItem
             // 
             this.editorTextToolStripMenuItem.Name = "editorTextToolStripMenuItem";
-            this.editorTextToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
-            this.editorTextToolStripMenuItem.Text = "Editor text";
+            this.editorTextToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
+            this.editorTextToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.editorTextToolStripMenuItem.Text = "Editor text...";
             this.editorTextToolStripMenuItem.Click += new System.EventHandler(this.editorTextToolStripMenuItem_Click);
             // 
             // nodeTextToolStripMenuItem
             // 
             this.nodeTextToolStripMenuItem.Name = "nodeTextToolStripMenuItem";
-            this.nodeTextToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
-            this.nodeTextToolStripMenuItem.Text = "Node text";
+            this.nodeTextToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.T)));
+            this.nodeTextToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.nodeTextToolStripMenuItem.Text = "Node text...";
             this.nodeTextToolStripMenuItem.Click += new System.EventHandler(this.nodeTextToolStripMenuItem_Click);
             // 
             // searchWordToolStripMenuItem
             // 
             this.searchWordToolStripMenuItem.Name = "searchWordToolStripMenuItem";
+            this.searchWordToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F)));
             this.searchWordToolStripMenuItem.Size = new System.Drawing.Size(86, 20);
             this.searchWordToolStripMenuItem.Text = "Search Word";
             this.searchWordToolStripMenuItem.Click += new System.EventHandler(this.searchWordToolStripMenuItem_Click);
@@ -180,6 +188,10 @@
             // 
             this.fileSystemWatcher1.EnableRaisingEvents = true;
             this.fileSystemWatcher1.SynchronizingObject = this;
+            // 
+            // saveFileDialog
+            // 
+            this.saveFileDialog.Filter = "XML files (*.xml)|*.xml|All files (*.*)|*.*";
             // 
             // splitter1
             // 
@@ -191,7 +203,7 @@
             // 
             // openFileDialog
             // 
-            this.openFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+            this.openFileDialog.Filter = "XML files (*.xml)|*.xml|All files (*.*)|*.*";
             // 
             // imageList1
             // 
@@ -204,12 +216,27 @@
             this.imageList1.Images.SetKeyName(3, "icons8-comments-24.png");
             this.imageList1.Images.SetKeyName(4, "icons8-filled-circle-48.png");
             // 
+            // statusStrip
+            // 
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel});
+            this.statusStrip.Location = new System.Drawing.Point(283, 428);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(517, 22);
+            this.statusStrip.TabIndex = 4;
+            // 
+            // toolStripStatusLabel
+            // 
+            this.toolStripStatusLabel.Name = "toolStripStatusLabel";
+            this.toolStripStatusLabel.Size = new System.Drawing.Size(0, 17);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.splitter1);
             this.Controls.Add(this.richTextBox);
             this.Controls.Add(this.treeView);
@@ -218,9 +245,12 @@
             this.Name = "FormMain";
             this.Text = "XML Tree Editor";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FormMain_KeyDown);
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).EndInit();
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -248,5 +278,7 @@
         private ToolStripMenuItem editorTextToolStripMenuItem;
         private ToolStripMenuItem nodeTextToolStripMenuItem;
         private ToolStripMenuItem searchWordToolStripMenuItem;
+        private StatusStrip statusStrip;
+        private ToolStripStatusLabel toolStripStatusLabel;
     }
 }

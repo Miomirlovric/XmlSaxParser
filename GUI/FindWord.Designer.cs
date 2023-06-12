@@ -44,7 +44,7 @@
             // 
             this.FindButton.Location = new System.Drawing.Point(12, 41);
             this.FindButton.Name = "FindButton";
-            this.FindButton.Size = new System.Drawing.Size(75, 23);
+            this.FindButton.Size = new System.Drawing.Size(90, 36);
             this.FindButton.TabIndex = 1;
             this.FindButton.Text = "Find";
             this.FindButton.UseVisualStyleBackColor = true;
@@ -52,11 +52,11 @@
             // 
             // FindNextButton
             // 
-            this.FindNextButton.Location = new System.Drawing.Point(152, 41);
+            this.FindNextButton.Location = new System.Drawing.Point(132, 41);
             this.FindNextButton.Name = "FindNextButton";
-            this.FindNextButton.Size = new System.Drawing.Size(75, 23);
+            this.FindNextButton.Size = new System.Drawing.Size(96, 36);
             this.FindNextButton.TabIndex = 2;
-            this.FindNextButton.Text = "Find Next";
+            this.FindNextButton.Text = "Find Previous";
             this.FindNextButton.UseVisualStyleBackColor = true;
             this.FindNextButton.Click += new System.EventHandler(this.FindNextButton_Click);
             // 
@@ -64,12 +64,14 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(239, 74);
+            this.ClientSize = new System.Drawing.Size(251, 89);
             this.Controls.Add(this.FindNextButton);
             this.Controls.Add(this.FindButton);
             this.Controls.Add(this.Find_tb);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "FindWord";
-            this.Text = "FindWord";
+            this.ShowInTaskbar = false;
+            this.Text = "Find";
             this.ResumeLayout(false);
             this.PerformLayout();
 
