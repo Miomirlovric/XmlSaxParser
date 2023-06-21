@@ -57,6 +57,8 @@
     <Compile Include="XmlCDATAEventArgs.cs" />
     <Compile Include="XmlComment.cs" />
     <Compile Include="XmlCommentEventArgs.cs" />
+    <Compile Include="XmlDeclaration.cs" />
+    <Compile Include="XmlDeclarationEventArgs.cs" />
     <Compile Include="XmlElement.cs" />
     <Compile Include="XmlElementEndEventArgs.cs" />
     <Compile Include="XmlElementStartEventArgs.cs" />

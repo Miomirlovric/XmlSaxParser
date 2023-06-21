@@ -19,6 +19,8 @@ using XmlAttribute = XmlSaxParser.XmlAttribute;
 using XmlNode = XmlSaxParser.XmlNode;
 using XmlComment = XmlSaxParser.XmlComment;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using XmlDeclaration = XmlSaxParser.XmlDeclaration;
 
 namespace GUI
 {
@@ -33,6 +35,8 @@ namespace GUI
         public FillTreeHandler treehandler { get; set; }
         FindWord findTextDlg;
         private bool updating = false;
+        private string AppName { get; set; }   
+        private string SelectedFileName { get; set; }
         [DllImport("user32.dll")]
         private static extern long LockWindowUpdate(long Handle);
 
@@ -41,7 +45,7 @@ namespace GUI
             InitializeComponent();
             findTextDlg = new FindWord(richTextBox);
             aTimer = new System.Windows.Forms.Timer();
-            aTimer.Interval = 6000;
+            aTimer.Interval = Int32.Parse(ConfigurationManager.AppSettings["ParseTime"]);
             aTimer.Tick += OnTimedEvent;
             parser = new SaxParser();
             tree = new XmlTree();
@@ -54,8 +58,12 @@ namespace GUI
             parser.XmlComment += treehandler.CommentHandler;
             parser.XmlCDATA += treehandler.CDATAHandler;
             parser.XmlAtribute += treehandler.AtributeHandler;
+            parser.XmlDeclaration += treehandler.DeclarationHandler;
             saveToolStripMenuItem.Enabled = false;
             saveAsToolStripMenuItem.Enabled = false;
+            AppName = "XML Tree Viewer ";
+            SelectedFileName = "NewDocument";
+            this.Text = AppName;
         }
 
         public class FormatException : Exception
@@ -74,32 +82,63 @@ namespace GUI
 
             public FillTreeHandler(TreeView view, RichTextBox richTextBox)
             {
-                //var configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                //var settings = configFile.AppSettings.Settings;
                 this.RichTextBox = richTextBox;
                 this.view = view;
                 this.stack = new Stack<TreeNode>();
+                Colors = new Dictionary<string, Color>();
+
+                ResetColors();
+
+                // Read Font settings.
+
+                string serializedFontSettingsEditor = ConfigurationManager.AppSettings["EditorFont"];
+                string serializedFontSettingsNode = ConfigurationManager.AppSettings["NodeFont"];
+
+                XmlSerializer deserializer = new XmlSerializer(typeof(FontSettings));
+                StringReader stringReader = new StringReader(serializedFontSettingsEditor);
+                FontSettings fontSettings = (FontSettings)deserializer.Deserialize(stringReader);
+                RichTextBox.Font = fontSettings.ToFont();
+
+                stringReader = new StringReader(serializedFontSettingsNode);
+                fontSettings = (FontSettings)deserializer.Deserialize(stringReader);
+                view.Font = fontSettings.ToFont();
+
+                stringReader.Dispose(); 
+                Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+  
+                var x = config.AppSettings.Settings.AllKeys.ToList();
+                foreach (var Node in Colors)
+                {
+                    if (x.Contains(Node.Key))
+                    {
+                        string colorvalue = ConfigurationManager.AppSettings[Node.Key];
+                        if (Int32.TryParse(colorvalue, out int j) && colorvalue != null)
+                        {
+                            Colors[Node.Key] = Color.FromArgb(j);
+                        }
+                        else
+                        {
+                            ResetColors();
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        config.AppSettings.Settings.Add(Node.Key,Node.Value.ToArgb().ToString());
+                        ResetColors();                       
+                    }
+                }
+                config.Save(ConfigurationSaveMode.Modified);
+                ConfigurationManager.RefreshSection("appSettings");
+            }
+
+            public void ResetColors()
+            {
                 Colors = new Dictionary<string, Color>()
             {
                 { "Element", Color.Blue },{ "Comment", Color.Black },{ "Text", Color.Black },
                 { "CDATA", Color.Yellow }, { "Atribute", Color.Blue },{"Key",Color.Red},{"Value",Color.Purple}
             };
-
-                //foreach (var i in Colors)
-                //{
-                //    Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-
-                //    config.AppSettings.Settings.Add(i.Key, i.Value.ToArgb().ToString());
-
-                //    config.Save(ConfigurationSaveMode.Modified, true);
-
-                //}
-                //int red = (colorValue >> 16) & 0xFF;
-                //int green = (colorValue >> 8) & 0xFF;
-                //int blue = colorValue & 0xFF;
-
-                //configFile.Save(ConfigurationSaveMode.Modified);
-                //ConfigurationManager.RefreshSection(configFile.AppSettings.SectionInformation.Name);
             }
 
             private void ColorSelections(Position position, int length, string NodeType, int KeyLength = 0)
@@ -116,7 +155,6 @@ namespace GUI
                 }
                 else
                 {
-
                     RichTextBox.DeselectAll();
                     RichTextBox.Select(i, KeyLength);
                     RichTextBox.SelectionColor = Colors["Key"];
@@ -214,8 +252,24 @@ namespace GUI
                 var node = stack.Peek().Nodes.Add(args.CDATA);
                 node.ForeColor = Colors["CDATA"];
                 node.ImageIndex = 3;
+                node.Tag = new XmlCDATA(args.CDATA) { Position = args.Position};
                 ColorSelections(args.Position, args.CDATA.Count(), "CDATA");
                 // Add atribute name and value to the XmlElement.
+            }
+            public void DeclarationHandler(object sender, XmlDeclarationEventArgs args)
+            {
+                if (stack.Count == 0)
+                {
+                    var node = view.Nodes.Add(args.XmlDeclaration);
+                    node.ImageIndex = 2;
+                    node.ForeColor = Colors["Element"];
+                    node.Tag = new XmlDeclaration(args.XmlDeclaration) { Position = args.Position};
+                    ColorSelections(args.Position, args.XmlDeclaration.Count(), "Element");
+                }
+                else
+                {
+                    throw new FormatException("Declaration must be provided on the begining of a document");
+                }
             }
         }
         private async void OnTimedEvent(Object myObject, EventArgs myEventArgs)
@@ -249,7 +303,7 @@ namespace GUI
             {
                 statusStrip.Items[0].Text = ex.Message;
             }
-            catch (Exception ex)
+            catch (XmlException ex)
             {
                 statusStrip.Items[0].Text = ex.Message;
 
@@ -275,6 +329,9 @@ namespace GUI
                     saveAsToolStripMenuItem.Enabled = true;
                 }
                 FileIsChanged = true;
+                saveToolStripMenuItem.Enabled = true;
+                saveAsToolStripMenuItem.Enabled = true;
+                aTimer.Stop();
                 aTimer.Start();
             }
         }
@@ -283,9 +340,9 @@ namespace GUI
         {
             if (FileIsChanged)
             {
-                var res = MessageBox.Show(this, "Do you want to save changes to ''?", "Exit",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
-                if (res != DialogResult.Yes)
+                var res = MessageBox.Show(this, $"Do you want to save changes to ''{SelectedFileName}?", "Exit",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                if (res == DialogResult.Yes)
                 {
                     saveToolStripMenuItem_Click(this, new EventArgs());
                 }
@@ -313,6 +370,13 @@ namespace GUI
 
                 updating = false;
                 FileIsChanged = false;
+                findTextDlg.resetFindWord();
+
+                SelectedFileName = Path.GetFileName(openFileDialog.FileName);
+                this.Text = AppName + "- " + SelectedFileName;
+
+                saveToolStripMenuItem.Enabled = true;
+                saveAsToolStripMenuItem.Enabled = true;
             }
         }
 
@@ -334,19 +398,26 @@ namespace GUI
         {
             if (FileIsChanged)
             {
-                var res = MessageBox.Show(this, "Do you want to save changes to ''?", "Exit",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
-                if (res != DialogResult.Yes)
+                var res = MessageBox.Show(this, $"Do you want to save changes to ''{SelectedFileName}?", "Exit",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                if (res == DialogResult.Yes)
                 {
                     saveToolStripMenuItem_Click(this, new EventArgs());
                 }
             }
+
             Clear();
+            saveToolStripMenuItem.Enabled = false;
+            saveAsToolStripMenuItem.Enabled = false;
             documentPath = String.Empty;
+            findTextDlg.resetFindWord();
+            SelectedFileName = "NewDocument";
+            this.Text = AppName + "- " + SelectedFileName;
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            saveFileDialog.FileName = SelectedFileName;
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
                 using StreamWriter writer = new StreamWriter(saveFileDialog.OpenFile());
@@ -355,6 +426,8 @@ namespace GUI
                 documentPath = saveFileDialog.FileName;
                 MessageBox.Show("File saved", "Notification", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 FileIsChanged = false;
+                SelectedFileName = Path.GetFileName(saveFileDialog.FileName);
+                this.Text = AppName + "- " + SelectedFileName;
             }
         }
 
@@ -367,9 +440,9 @@ namespace GUI
         {
             if (FileIsChanged)
             {
-                var res = MessageBox.Show(this, "Do you want to save changes to ''?", "Exit",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
-                if (res != DialogResult.Yes)
+                var res = MessageBox.Show(this, $"Do you want to save changes to ''{SelectedFileName}?", "Exit",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                if (res == DialogResult.Yes)
                 {
                     e.Cancel = true;
                     saveToolStripMenuItem_Click(this, new EventArgs());
@@ -397,6 +470,12 @@ namespace GUI
                 {
                     var result = dlg.colors;
                     treehandler.Colors = result;
+                    Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                    foreach(var color in result)
+                    {
+                        config.AppSettings.Settings[color.Key].Value = color.Value.ToArgb().ToString();
+                    }
+                    config.Save(ConfigurationSaveMode.Modified, true);
                     Reload();
                 }
             }
@@ -416,8 +495,19 @@ namespace GUI
         {
             using (FontDialog font = new FontDialog())
             {
+                font.ShowEffects = false;
+                font.ShowColor = false;
+                font.AllowScriptChange = false;
                 if (font.ShowDialog() == DialogResult.OK)
                 {
+                    Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                    XmlSerializer serializer = new XmlSerializer(typeof(FontSettings));
+                    StringWriter stringWriter = new StringWriter();
+                    serializer.Serialize(stringWriter, new FontSettings(font.Font.Name,font.Font.Size,font.Font.Style));
+                    string serializedFont = stringWriter.ToString();
+                    config.AppSettings.Settings["EditorFont"].Value = serializedFont;
+                    config.Save(ConfigurationSaveMode.Modified);
+                    ConfigurationManager.RefreshSection("appSettings");
                     LockWindowUpdate((long)richTextBox.Handle);
                     richTextBox.Font = font.Font;
                     Reload();
@@ -430,14 +520,23 @@ namespace GUI
 
         private void nodeTextToolStripMenuItem_Click(object sender, EventArgs e)
         {
+
             using (FontDialog font = new FontDialog())
             {
-
+                font.ShowEffects = false;
+                font.ShowColor = false;
+                font.AllowScriptChange = false;
                 if (font.ShowDialog() == DialogResult.OK)
                 {
                     LockWindowUpdate((long)richTextBox.Handle);
-                    Size size = new Size((int)font.Font.Size * 2, (int)font.Font.Size * 2);
-                    treeView.ImageList.ImageSize = size;
+                    Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                    XmlSerializer serializer = new XmlSerializer(typeof(FontSettings));
+                    StringWriter stringWriter = new StringWriter();
+                    serializer.Serialize(stringWriter, new FontSettings(font.Font.Name, font.Font.Size, font.Font.Style));
+                    string serializedFont = stringWriter.ToString();
+                    config.AppSettings.Settings["NodeFont"].Value = serializedFont;
+                    config.Save(ConfigurationSaveMode.Modified);
+                    ConfigurationManager.RefreshSection("appSettings");
                     treeView.Font = font.Font;
                     Reload();
                     LockWindowUpdate(0);
@@ -448,6 +547,7 @@ namespace GUI
 
         private void searchWordToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            findTextDlg.Hide();
             findTextDlg.Show(this);
         }
 
@@ -457,6 +557,45 @@ namespace GUI
             {
                 aTimer.Stop();
                 Reload();
+            }
+        }
+        [Serializable]
+        public class FontSettings
+        {
+            public string FontFamily { get; set; }
+            public float Size { get; set; }
+            public FontStyle Style { get; set; }
+
+            public FontSettings()
+            {
+            }
+
+            public FontSettings(string fontFamily, float size, FontStyle style)
+            {
+                FontFamily = fontFamily;
+                Size = size;
+                Style = style;
+            }
+
+            public Font ToFont()
+            {
+                return new Font(FontFamily, Size, Style);
+            }
+        }
+
+        private void processingTimeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (SetParsingTime dialog = new SetParsingTime(aTimer.Interval))
+            {
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    var time = dialog.time;
+                    Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                    config.AppSettings.Settings["ParseTime"].Value = time.ToString();
+                    config.Save(ConfigurationSaveMode.Modified);
+                    ConfigurationManager.RefreshSection("appSettings");
+                    aTimer.Interval = time; 
+                }
             }
         }
     }

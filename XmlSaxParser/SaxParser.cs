@@ -18,6 +18,7 @@ namespace XmlSaxParser
         public delegate void XmlAtributeEventHandler(object sender, XmlAtributeEventArgs args);
         public delegate void XmlCommentEventHandler(object sender, XmlCommentEventArgs args);
         public delegate void XmlCDATAEventHandler(object sender, XmlCDATAEventArgs args);
+        public delegate void XmlDeclarationEventHandler(object sender, XmlDeclarationEventArgs args);
 
         public event XmlElementStartEventHandler XmlElementStart;
         public event XmlElementEndEventHandler XmlElementEnd;
@@ -25,7 +26,7 @@ namespace XmlSaxParser
         public event XmlAtributeEventHandler XmlAtribute;
         public event XmlCommentEventHandler XmlComment;
         public event XmlCDATAEventHandler XmlCDATA;
-
+        public event XmlDeclarationEventHandler XmlDeclaration;
 
         public SaxParser()
         {
@@ -74,6 +75,10 @@ namespace XmlSaxParser
                             OnCDATA(reader.Value, Position);
 
                             break;
+                        case XmlNodeType.XmlDeclaration:
+                            OnDeclaration(reader.Value, Position);
+
+                            break;
 
                         default:
                             
@@ -106,6 +111,10 @@ namespace XmlSaxParser
         protected virtual void OnCDATA(string comment, Position position)
         {
             XmlCDATA?.Invoke(this, new XmlCDATAEventArgs(comment, position));
+        }
+        protected virtual void OnDeclaration(string declaration, Position position)
+        {
+            XmlDeclaration?.Invoke(this, new XmlDeclarationEventArgs(declaration, position));
         }
     }
 }
