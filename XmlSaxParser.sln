@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XmlSaxParser", "XmlSaxParse
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{44209CBB-14B3-4FDE-80A3-1617A997A398}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GUI", "GUI\GUI.csproj", "{F512C143-6E89-4206-8CB8-2AFCFCD4F427}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XmlTreeViewer", "GUI\XmlTreeViewer.csproj", "{F512C143-6E89-4206-8CB8-2AFCFCD4F427}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

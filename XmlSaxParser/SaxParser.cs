@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using System.Threading;
+using System.Runtime.CompilerServices;
 
 namespace XmlSaxParser
 {
@@ -19,6 +20,7 @@ namespace XmlSaxParser
         public delegate void XmlCommentEventHandler(object sender, XmlCommentEventArgs args);
         public delegate void XmlCDATAEventHandler(object sender, XmlCDATAEventArgs args);
         public delegate void XmlDeclarationEventHandler(object sender, XmlDeclarationEventArgs args);
+        public delegate void XmlProcesingEventHandler(object sender, XmlDeclarationEventArgs args);
 
         public event XmlElementStartEventHandler XmlElementStart;
         public event XmlElementEndEventHandler XmlElementEnd;
@@ -27,13 +29,14 @@ namespace XmlSaxParser
         public event XmlCommentEventHandler XmlComment;
         public event XmlCDATAEventHandler XmlCDATA;
         public event XmlDeclarationEventHandler XmlDeclaration;
+        public event XmlProcesingEventHandler XmlProcesing;
 
         public SaxParser()
         {
             settings.Async = true;
         }
 
-        XmlReaderSettings settings = new XmlReaderSettings();
+        readonly XmlReaderSettings settings = new XmlReaderSettings();
 
         public async Task Parse(TextReader textReader)
         {
@@ -76,9 +79,42 @@ namespace XmlSaxParser
 
                             break;
                         case XmlNodeType.XmlDeclaration:
-                            OnDeclaration(reader.Value, Position);
+
+                            PositionPI positionPI = new PositionPI(reader.Name+reader.Value, "null", Position);
+                            if (reader.HasAttributes)
+                            {
+                                while (reader.MoveToNextAttribute())
+                                {
+                                    positionPI.Positions.Add(new PositionPI(reader.Name, reader.Value, new Position() { LineNumber = xli.LineNumber, LinePosition = xli.LinePosition }));                                    
+                                }
+                                OnDeclaration(positionPI);
+                                reader.MoveToElement();
+                            }
+                            else
+                            {
+                                OnDeclaration(positionPI);
+                            }
+                                                   
+                            break;
+                        case XmlNodeType.ProcessingInstruction:
+
+                            PositionPI pi = new PositionPI(reader.Name + reader.Value, "null", Position);
+                            if (reader.HasAttributes)
+                            {
+                                while (reader.MoveToNextAttribute())
+                                {
+                                    pi.Positions.Add(new PositionPI(reader.Name, reader.Value, new Position() { LineNumber = xli.LineNumber, LinePosition = xli.LinePosition }));
+                                }
+                                OnProcesing(pi);
+                                reader.MoveToElement();
+                            }
+                            else
+                            {
+                                OnProcesing(pi);
+                            }
 
                             break;
+
 
                         default:
                             
@@ -112,9 +148,13 @@ namespace XmlSaxParser
         {
             XmlCDATA?.Invoke(this, new XmlCDATAEventArgs(comment, position));
         }
-        protected virtual void OnDeclaration(string declaration, Position position)
+        protected virtual void OnDeclaration(PositionPI position)
         {
-            XmlDeclaration?.Invoke(this, new XmlDeclarationEventArgs(declaration, position));
+            XmlDeclaration?.Invoke(this, new XmlDeclarationEventArgs(position));
+        }
+        protected virtual void OnProcesing(PositionPI position)
+        {
+            XmlProcesing?.Invoke(this, new XmlDeclarationEventArgs(position));
         }
     }
 }

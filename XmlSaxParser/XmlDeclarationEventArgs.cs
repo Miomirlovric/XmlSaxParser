@@ -8,12 +8,11 @@ namespace XmlSaxParser
 {
     public class XmlDeclarationEventArgs : EventArgs
     {
-        public XmlDeclarationEventArgs(string xmldeclaration,Position position)
+        public XmlDeclarationEventArgs(PositionPI positionpi )
         {
-            XmlDeclaration = xmldeclaration;
-            Position = position;
+            PositionPI = positionpi;
         }
-        public readonly string XmlDeclaration;
-        public readonly Position Position;
+
+        public readonly PositionPI PositionPI;
     }
 }
