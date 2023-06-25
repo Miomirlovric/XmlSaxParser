@@ -36,7 +36,8 @@ namespace XmlSaxParser
             settings.Async = true;
         }
 
-        readonly XmlReaderSettings settings = new XmlReaderSettings();
+        XmlReaderSettings settings = new XmlReaderSettings();
+
 
         public async Task Parse(TextReader textReader)
         {

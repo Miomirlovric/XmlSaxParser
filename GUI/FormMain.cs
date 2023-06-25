@@ -21,6 +21,9 @@ using XmlComment = XmlSaxParser.XmlComment;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using XmlDeclaration = XmlSaxParser.XmlDeclaration;
+using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+using System.Text;
 
 namespace GUI
 {
@@ -81,7 +84,7 @@ namespace GUI
                 this.view = view;
                 this.stack = new Stack<TreeNode>();
                 Colors = new Dictionary<string, Color>();
-
+                Timer = timer;
                 ResetColors();
 
                 // Read Font settings.
@@ -91,44 +94,41 @@ namespace GUI
                 if (File.Exists(config.FilePath))
                 {
                     var x = config.AppSettings.Settings.AllKeys.ToList();
-                    List<string> missing = new List<string>() { "ParseTime", "EditorFont", "NodeFont", "Element", "Comment", "Text", "CDATA", "Atribute", "Key", "Value" };
-                    Timer = timer;
+                    List<string> missing = new List<string>() { "ParsedTime", "EditorFont", "NodeFont", "Element", "Comment", "Text", "CDATA", "Atribute", "Key", "Value" };
 
                     if (x.All(item => missing.Contains(item)))
                     {
                         try
-                        {                        
-                        Timer.Interval = Int32.Parse(ConfigurationManager.AppSettings["ParseTime"]);
-                        string serializedFontSettingsEditor = ConfigurationManager.AppSettings["EditorFont"];
-                        string serializedFontSettingsNode = ConfigurationManager.AppSettings["NodeFont"];
-
-                        XmlSerializer deserializer = new XmlSerializer(typeof(FontSettings));
-                        StringReader stringReader = new StringReader(serializedFontSettingsEditor);
-                        FontSettings fontSettings = (FontSettings)deserializer.Deserialize(stringReader);
-                        RichTextBox.Font = fontSettings.ToFont();
-
-                        stringReader = new StringReader(serializedFontSettingsNode);
-                        fontSettings = (FontSettings)deserializer.Deserialize(stringReader);
-                        view.Font = fontSettings.ToFont();
-                        stringReader.Dispose();
-
-                        foreach (var Node in Colors)
                         {
-                            string colorvalue = ConfigurationManager.AppSettings[Node.Key];
-                            Colors[Node.Key] = Color.FromArgb(Int32.Parse(colorvalue));
+                            Timer.Interval = Int32.Parse(ConfigurationManager.AppSettings["ParsedTime"]);
+                            string serializedFontSettingsEditor = ConfigurationManager.AppSettings["EditorFont"];
+                            string serializedFontSettingsNode = ConfigurationManager.AppSettings["NodeFont"];
+
+                            XmlSerializer deserializer = new XmlSerializer(typeof(FontSettings));
+                            StringReader stringReader = new StringReader(serializedFontSettingsEditor);
+                            FontSettings fontSettings = (FontSettings)deserializer.Deserialize(stringReader);
+                            RichTextBox.Font = fontSettings.ToFont();
+
+                            stringReader = new StringReader(serializedFontSettingsNode);
+                            fontSettings = (FontSettings)deserializer.Deserialize(stringReader);
+                            view.Font = fontSettings.ToFont();
+                            stringReader.Dispose();
+
+                            foreach (var Node in Colors)
+                            {
+                                string colorvalue = ConfigurationManager.AppSettings[Node.Key];
+                                Colors[Node.Key] = Color.FromArgb(Int32.Parse(colorvalue));
+                            }
+                            config.Save(ConfigurationSaveMode.Modified);
                         }
-                        config.Save(ConfigurationSaveMode.Modified);
-                        }
-                        catch(Exception ex)
+                        catch (Exception ex) when (ex is ArgumentException || ex is FormatException)
                         {
-                            ResetFontTimerColor();
                             ConfigurationFileMissing = true;
                             MessageBox.Show("Configuration file setting is corupted, running at default settings", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         }
                     }
                     else
                     {
-                        ResetFontTimerColor();
                         MessageBox.Show("Configuration file is corupted, running at default settings", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         ConfigurationFileMissing = true;
                     }
@@ -137,6 +137,10 @@ namespace GUI
                 {
                     MessageBox.Show("Configuration file not found, running at default settings", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     ConfigurationFileMissing = true;
+                }
+                if (ConfigurationFileMissing)
+                {
+                    config.Save();
                     ResetFontTimerColor();
                 }
             }
@@ -147,6 +151,31 @@ namespace GUI
                 RichTextBox.Font = new Font("Arial", 12, FontStyle.Regular);
                 view.Font = new Font("Arial", 12, FontStyle.Regular);
                 Timer.Interval = 6000;
+
+                System.Text.StringBuilder sb = new StringBuilder();
+                sb.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\" ?>");
+                sb.AppendLine("<configuration>");
+                sb.AppendLine("</configuration>");
+
+
+                string loc = Assembly.GetEntryAssembly().Location;
+                System.IO.File.WriteAllText(String.Concat(loc, ".config"), sb.ToString());
+
+                var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                foreach (var color in Colors)
+                {
+                    config.AppSettings.Settings.Add(color.Key, color.Value.ToArgb().ToString());
+                }
+
+                XmlSerializer serializer = new XmlSerializer(typeof(FontSettings));
+                StringWriter stringWriter = new StringWriter();
+                serializer.Serialize(stringWriter, new FontSettings(RichTextBox.Font.Name, RichTextBox.Font.Size, RichTextBox.Font.Style));
+                string serializedFont = stringWriter.ToString();
+                config.AppSettings.Settings.Add("NodeFont", serializedFont);
+                config.AppSettings.Settings.Add("EditorFont", serializedFont);
+                config.AppSettings.Settings.Add("ParsedTime", Timer.Interval.ToString());
+                config.Save(ConfigurationSaveMode.Modified);
+                ConfigurationManager.RefreshSection("appSettings");
             }
 
             public void ResetColors()
@@ -245,9 +274,9 @@ namespace GUI
             public void DeclarationHandler(object sender, XmlDeclarationEventArgs args)
             {
                 TreeNode node = new TreeNode();
-                if(stack.Count == 0) 
-                { 
-                  node = view.Nodes.Add(args.PositionPI.Name);
+                if (stack.Count == 0)
+                {
+                    node = view.Nodes.Add(args.PositionPI.Name);
                 }
                 else
                 {
@@ -261,11 +290,13 @@ namespace GUI
                 var i = RichTextBox.GetFirstCharIndexFromLine(ln);
                 i = i + lp;
                 ColorSelections(args.PositionPI.Position, args.PositionPI.Name.Count(), "Element");
-                RichTextBox.Select(i-2, i);
-                //RichTextBox.SelectionColor = Colors["Key"];
-                RichTextBox.Select(i+args.PositionPI.Name.Length,i+ args.PositionPI.Name.Length +2);
-                //RichTextBox.SelectionColor = Colors["Key"];
+
+                RichTextBox.Select(i - 2, 2);
+                RichTextBox.SelectionColor = Colors["Key"];
+                RichTextBox.Select(i + args.PositionPI.Name.Length + 1, 2);
+                RichTextBox.SelectionColor = Colors["Key"];
                 RichTextBox.DeselectAll();
+
                 foreach (var attribute in args.PositionPI.Positions)
                 {
                     ColorSelections(attribute.Position, attribute.Name.Count() + attribute.Value.Count() + 3, "Atribute", attribute.Name.Count());
@@ -273,27 +304,6 @@ namespace GUI
 
             }
 
-            //public void ProcessingInstructionHandler(object sender, XmlProcessingInstructionEventArgs pi)
-            //{
-            //    //var node = view.Nodes.Add(args.PositionPI.Name);
-            //    //node.ImageIndex = 2;
-            //    //node.ForeColor = Colors["Key"];
-            //    //node.Tag = new XmlDeclaration(args.PositionPI.Name) { Position = args.PositionPI.Position };
-            //    //var ln = args.PositionPI.Position.LineNumber - 1;
-            //    //var lp = args.PositionPI.Position.LinePosition - 1;
-            //    //var i = RichTextBox.GetFirstCharIndexFromLine(ln);
-            //    //i = i + lp;
-            //    //ColorSelections(args.PositionPI.Position, args.PositionPI.Name.Count(), "Element");
-            //    //RichTextBox.Select(i - 2, i);
-            //    //RichTextBox.SelectionColor = Colors["Key"];
-            //    //RichTextBox.Select(i + args.PositionPI.Name.Length, i + args.PositionPI.Name.Length + 2);
-            //    //RichTextBox.SelectionColor = Colors["Key"];
-            //    //RichTextBox.DeselectAll();
-            //    //foreach (var attribute in args.PositionPI.Positions)
-            //    //{
-            //    //    ColorSelections(attribute.Position, attribute.Name.Count() + attribute.Value.Count() + 3, "Atribute", attribute.Name.Count());
-            //    //}
-            //}
         }
         private async void OnTimedEvent(Object myObject, EventArgs myEventArgs)
         {
@@ -483,28 +493,24 @@ namespace GUI
 
         private void nodeColorsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!treehandler.ConfigurationFileMissing)
+
+            using (ColorPicker dlg = new ColorPicker(treehandler.Colors))
             {
-                using (ColorPicker dlg = new ColorPicker(treehandler.Colors))
+                if (dlg.ShowDialog() == DialogResult.OK)
                 {
-                    if (dlg.ShowDialog() == DialogResult.OK)
+                    var result = dlg.colors;
+                    treehandler.Colors = result;
+                    Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                    foreach (var color in result)
                     {
-                        var result = dlg.colors;
-                        treehandler.Colors = result;
-                        Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                        foreach (var color in result)
-                        {
-                            config.AppSettings.Settings[color.Key].Value = color.Value.ToArgb().ToString();
-                        }
-                        config.Save(ConfigurationSaveMode.Modified, true);
-                        Reload();
+                        config.AppSettings.Settings[color.Key].Value = color.Value.ToArgb().ToString();
                     }
+                    config.Save(ConfigurationSaveMode.Modified, true);
+                    Reload();
                 }
             }
-            else
-            {
-                nodeColorsToolStripMenuItem.Enabled = false;
-            }
+
+
         }
         private void Clear()
         {
@@ -519,69 +525,59 @@ namespace GUI
         }
         private void editorTextToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!treehandler.ConfigurationFileMissing)
+
+            using (FontDialog font = new FontDialog())
             {
-                using (FontDialog font = new FontDialog())
+                font.ShowEffects = false;
+                font.ShowColor = false;
+                font.AllowScriptChange = false;
+                if (font.ShowDialog() == DialogResult.OK)
                 {
-                    font.ShowEffects = false;
-                    font.ShowColor = false;
-                    font.AllowScriptChange = false;
-                    if (font.ShowDialog() == DialogResult.OK)
-                    {
-                        Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                        XmlSerializer serializer = new XmlSerializer(typeof(FontSettings));
-                        StringWriter stringWriter = new StringWriter();
-                        serializer.Serialize(stringWriter, new FontSettings(font.Font.Name, font.Font.Size, font.Font.Style));
-                        string serializedFont = stringWriter.ToString();
-                        config.AppSettings.Settings["EditorFont"].Value = serializedFont;
-                        config.Save(ConfigurationSaveMode.Modified);
-                        ConfigurationManager.RefreshSection("appSettings");
-                        LockWindowUpdate((long)richTextBox.Handle);
-                        richTextBox.Font = font.Font;
-                        Reload();
-                        richTextBox.Select(0, 0);
-                        LockWindowUpdate(0);
-                        richTextBox.Invalidate();
-                    }
+                    Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                    XmlSerializer serializer = new XmlSerializer(typeof(FontSettings));
+                    StringWriter stringWriter = new StringWriter();
+                    serializer.Serialize(stringWriter, new FontSettings(font.Font.Name, font.Font.Size, font.Font.Style));
+                    string serializedFont = stringWriter.ToString();
+                    config.AppSettings.Settings["EditorFont"].Value = serializedFont;
+                    config.Save(ConfigurationSaveMode.Modified);
+                    ConfigurationManager.RefreshSection("appSettings");
+                    LockWindowUpdate((long)richTextBox.Handle);
+                    richTextBox.Font = font.Font;
+                    Reload();
+                    richTextBox.Select(0, 0);
+                    LockWindowUpdate(0);
+                    richTextBox.Invalidate();
                 }
             }
-            else
-            {
-                editorTextToolStripMenuItem.Enabled = false;
-            }
+
         }
 
         private void nodeTextToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!treehandler.ConfigurationFileMissing)
+
+            using (FontDialog font = new FontDialog())
             {
-                using (FontDialog font = new FontDialog())
+                font.ShowEffects = false;
+                font.ShowColor = false;
+                font.AllowScriptChange = false;
+                if (font.ShowDialog() == DialogResult.OK)
                 {
-                    font.ShowEffects = false;
-                    font.ShowColor = false;
-                    font.AllowScriptChange = false;
-                    if (font.ShowDialog() == DialogResult.OK)
-                    {
-                        LockWindowUpdate((long)richTextBox.Handle);
-                        Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                        XmlSerializer serializer = new XmlSerializer(typeof(FontSettings));
-                        StringWriter stringWriter = new StringWriter();
-                        serializer.Serialize(stringWriter, new FontSettings(font.Font.Name, font.Font.Size, font.Font.Style));
-                        string serializedFont = stringWriter.ToString();
-                        config.AppSettings.Settings["NodeFont"].Value = serializedFont;
-                        config.Save(ConfigurationSaveMode.Modified);
-                        ConfigurationManager.RefreshSection("appSettings");
-                        treeView.Font = font.Font;
-                        Reload();
-                        LockWindowUpdate(0);
-                        richTextBox.Invalidate();
-                    }
+                    LockWindowUpdate((long)richTextBox.Handle);
+                    Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                    XmlSerializer serializer = new XmlSerializer(typeof(FontSettings));
+                    StringWriter stringWriter = new StringWriter();
+                    serializer.Serialize(stringWriter, new FontSettings(font.Font.Name, font.Font.Size, font.Font.Style));
+                    string serializedFont = stringWriter.ToString();
+                    config.AppSettings.Settings["NodeFont"].Value = serializedFont;
+                    config.Save(ConfigurationSaveMode.Modified);
+                    ConfigurationManager.RefreshSection("appSettings");
+                    treeView.Font = font.Font;
+                    Reload();
+                    LockWindowUpdate(0);
+                    richTextBox.Invalidate();
                 }
             }
-            else
-            {
-                nodeTextToolStripMenuItem.Enabled = false;
-            }
+
         }
 
         private void searchWordToolStripMenuItem_Click(object sender, EventArgs e)
@@ -624,25 +620,20 @@ namespace GUI
 
         private void processingTimeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!treehandler.ConfigurationFileMissing)
+
+            using (SetParsingTime dialog = new SetParsingTime(aTimer.Interval))
             {
-                using (SetParsingTime dialog = new SetParsingTime(aTimer.Interval))
+                if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    if (dialog.ShowDialog() == DialogResult.OK)
-                    {
-                        var time = dialog.time;
-                        Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                        config.AppSettings.Settings["ParseTime"].Value = time.ToString();
-                        config.Save(ConfigurationSaveMode.Modified);
-                        ConfigurationManager.RefreshSection("appSettings");
-                        aTimer.Interval = time;
-                    }
+                    var time = dialog.time;
+                    Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                    config.AppSettings.Settings["ParseTime"].Value = time.ToString();
+                    config.Save(ConfigurationSaveMode.Modified);
+                    ConfigurationManager.RefreshSection("appSettings");
+                    aTimer.Interval = time;
                 }
             }
-            else
-            {
-                processingTimeToolStripMenuItem.Enabled = false;
-            }
+
         }
     }
 }

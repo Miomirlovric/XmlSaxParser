@@ -60,7 +60,7 @@
             // 
             // treeView
             // 
-            this.treeView.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
+            this.treeView.BackColor = System.Drawing.SystemColors.Window;
             this.treeView.Dock = System.Windows.Forms.DockStyle.Left;
             this.treeView.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.treeView.Location = new System.Drawing.Point(0, 24);
@@ -71,7 +71,7 @@
             // 
             // richTextBox
             // 
-            this.richTextBox.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.richTextBox.BackColor = System.Drawing.SystemColors.Window;
             this.richTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.richTextBox.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.richTextBox.HideSelection = false;
@@ -106,7 +106,7 @@
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
-            this.fileToolStripMenuItem.Text = "F&ile";
+            this.fileToolStripMenuItem.Text = "&File";
             // 
             // openToolStripMenuItem
             // 
@@ -157,34 +157,34 @@
             this.processingTimeToolStripMenuItem});
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
-            this.settingsToolStripMenuItem.Text = "Settin&gs";
+            this.settingsToolStripMenuItem.Text = "S&ettings";
             // 
             // nodeColorsToolStripMenuItem
             // 
             this.nodeColorsToolStripMenuItem.Name = "nodeColorsToolStripMenuItem";
             this.nodeColorsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.nodeColorsToolStripMenuItem.Text = "Node colors...";
+            this.nodeColorsToolStripMenuItem.Text = "&Node colors...";
             this.nodeColorsToolStripMenuItem.Click += new System.EventHandler(this.nodeColorsToolStripMenuItem_Click);
             // 
             // editorTextToolStripMenuItem
             // 
             this.editorTextToolStripMenuItem.Name = "editorTextToolStripMenuItem";
             this.editorTextToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.editorTextToolStripMenuItem.Text = "Editor text...";
+            this.editorTextToolStripMenuItem.Text = "E&ditor text...";
             this.editorTextToolStripMenuItem.Click += new System.EventHandler(this.editorTextToolStripMenuItem_Click);
             // 
             // nodeTextToolStripMenuItem
             // 
             this.nodeTextToolStripMenuItem.Name = "nodeTextToolStripMenuItem";
             this.nodeTextToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.nodeTextToolStripMenuItem.Text = "Node text...";
+            this.nodeTextToolStripMenuItem.Text = "No&de text...";
             this.nodeTextToolStripMenuItem.Click += new System.EventHandler(this.nodeTextToolStripMenuItem_Click);
             // 
             // processingTimeToolStripMenuItem
             // 
             this.processingTimeToolStripMenuItem.Name = "processingTimeToolStripMenuItem";
             this.processingTimeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.processingTimeToolStripMenuItem.Text = "Processing time...";
+            this.processingTimeToolStripMenuItem.Text = "&Processing time...";
             this.processingTimeToolStripMenuItem.Click += new System.EventHandler(this.processingTimeToolStripMenuItem_Click);
             // 
             // searchWordToolStripMenuItem
@@ -192,7 +192,7 @@
             this.searchWordToolStripMenuItem.Name = "searchWordToolStripMenuItem";
             this.searchWordToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F)));
             this.searchWordToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
-            this.searchWordToolStripMenuItem.Text = "&Find";
+            this.searchWordToolStripMenuItem.Text = "Fi&nd";
             this.searchWordToolStripMenuItem.Click += new System.EventHandler(this.searchWordToolStripMenuItem_Click);
             // 
             // fileSystemWatcher1

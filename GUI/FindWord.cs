@@ -44,7 +44,6 @@ namespace GUI
             }
             else
             {
-                resetFindWord();
                 MessageBox.Show("No word was found");
             }
         }
@@ -59,7 +58,7 @@ namespace GUI
             }
             else
             {
-                resetFindWord();
+                MessageBox.Show("No word was found");
             }
         }
     }
